@@ -18,13 +18,29 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.eshaahmed.CommunityScape"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-font"
-    ]
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you share them with your friends."
+        }
+      ],
+      "@reactvision/react-viro"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "f754938f-6905-46df-b6ed-2ce8f3ed39bd"
+      }
+    }
   }
 }

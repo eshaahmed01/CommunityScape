@@ -1,4 +1,4 @@
-import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Modal, Button } from 'react-native'
+import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Modal, Button, Alert } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { colours } from '../constants/colours'
 import { Rating } from 'react-native-ratings';
@@ -10,6 +10,7 @@ import HorizontalImageCarousel from '../components/HorizontalImageCarousel';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { app } from '../firebaseconfig'; // Adjust the path as necessary
+import fonts from '../constants/fonts';
 
 
 const PropertyDetail = ({ route, navigation }) => {
@@ -18,6 +19,40 @@ const PropertyDetail = ({ route, navigation }) => {
     const [estateDetails, setEstateDetails] = useState({});
     const [estateDataObj, setEstateDataObj] = useState({});
     const [favModalVisible, setFavModalVisible] = useState(false);
+    const [contactModalVisible, setContactModalVisible] = useState(false);
+    const [sellerName, setSellerName] = useState(null);
+    const[ sellerPhone, setSellerPhone] = useState(null);
+    const[ sellerEmail, setSellerEmail] = useState(null);
+    const [sellerMessage, setSellerMessage] = useState(null);
+
+const handleSellerForm = () => {
+   if  (!sellerName){
+    Alert.alert("Enter your name");
+    return;
+    }
+
+    if (!sellerPhone){
+        Alert.alert("Enter your phone number");
+        return; 
+        }
+
+        if (!sellerEmail){
+            Alert.alert("Enter your email");
+            return; 
+     }
+
+     if (!sellerMessage){
+        Alert.alert("Enter your message to seller");
+            return;
+     }
+
+     Alert.alert("Information sent to seller");
+     setContactModalVisible(false);
+
+}
+
+
+    
     const [userData, setUserData] = useState(null);
     const { id, location, name } = route.params;
     console.log("Hello");
@@ -176,7 +211,10 @@ const PropertyDetail = ({ route, navigation }) => {
         navigation.navigate('Favourites', location);
     }
 
-    
+    const handleContactSeller = () => {
+        setContactModalVisible(true);
+
+    }
 
 
     const splitEstateName = (location) => {
@@ -269,8 +307,91 @@ const PropertyDetail = ({ route, navigation }) => {
                             <FText style={{ ...styles.bodyText, color: '#53587A', marginLeft: 5 }} fontSize='normal' fontWeight='400' color={colours.typography_60}>{formatState(estates[0].State)}</FText>
                         </View>
 
-                        <View>
+                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}} >
                             <FText style={{ paddingHorizontal: '5%', marginTop: 40 }} fontSize='h6' fontWeight='700' color={colours.primary}>Listed By</FText>
+                            {estates[0].ListingType === "SellerListing" && (
+                    <TouchableOpacity 
+                   onPress={() => setContactModalVisible(true)} 
+                  style={{ marginLeft: 10, marginRight: 20, backgroundColor: colours.primary, paddingHorizontal: 10, paddingVertical: 10, borderRadius: 10, marginTop: 40 }}
+                   >
+                  <FText fontSize='small' fontWeight={400} color={colours.white}>Contact Seller</FText>
+                 </TouchableOpacity>
+                  )}
+
+    <Modal
+        animationType="slide"
+        transparent={true}
+        visible={contactModalVisible}
+        onRequestClose={() => {
+          setContactModalVisible(!contactModalVisible);
+        }}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalView}>
+           <FText fontSize='large' fontWeight={700} color={colours.primary}> Seller Contact form </FText>
+            <View style={styles.inputContainer}>
+                <FText fontSize="large" fontWeight={700} color={colours.primary} style={styles.label}>
+                  Name:
+                </FText>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter complete address"
+                  placeholderTextColor={"#A1A5C1"}
+                  onChangeText={setSellerName}
+                  value={sellerName}
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <FText fontSize="large" fontWeight={700} color={colours.primary} style={styles.label}>
+                  Phone:
+                </FText>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter complete address"
+                  placeholderTextColor={"#A1A5C1"}
+                  onChangeText={setSellerPhone}
+                  value={sellerPhone}
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <FText fontSize="large" fontWeight={700} color={colours.primary} style={styles.label}>
+                  Email:
+                </FText>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter complete address"
+                  placeholderTextColor={"#A1A5C1"}
+                  onChangeText={setSellerEmail}
+                  value={sellerEmail}
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+        <FText fontSize="large" fontWeight={700} color={colours.primary} style={styles.label}>
+          Message: 
+        </FText>
+        <TextInput
+          style={[styles.input, styles.textArea]}
+          placeholder="Enter your message"
+          multiline
+          numberOfLines={2}
+          placeholderTextColor={"#A1A5C1"}
+          onChangeText={setSellerMessage}
+          value={sellerMessage}
+        />
+      </View>
+
+      <TouchableOpacity style={{ backgroundColor: '#8BC83F', borderRadius: 10, marginHorizontal: 20, marginTop: 10, alignItems: 'center', width: '60%', height: 46, justifyContent: 'center', alignSelf: 'center', marginBottom: 10 }} onPress={handleSellerForm}>
+            <FText fontSize='small' fontWeight='400' color={colours.white}>Send</FText>
+    </TouchableOpacity>
+
+
+          </View>
+        </View>
+      </Modal>
+
                         </View>
                         
                         <View style={styles.clientView}>
@@ -289,6 +410,7 @@ const PropertyDetail = ({ route, navigation }) => {
                                 ))}
                             </ScrollView>
                         </View>
+                     
                         <FText style={{ paddingHorizontal: '5%', marginTop: 40 }} fontSize='h6' fontWeight='700' color={colours.primary}>Location & Public Facilities</FText>
                         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, paddingHorizontal: '5%' }}>
                             <Image source={Images.locationBg} style={{ width: 50, height: 50 }} />
@@ -566,4 +688,31 @@ const styles = StyleSheet.create({
         height: 100,
         margin: 6,
     },
+    inputContainer: {
+        marginTop: 21,
+        marginLeft: 20,
+        marginRight: 30,
+        marginBottom: 10
+      },
+      label: {
+        marginBottom: 5
+      },
+      input: {
+        height: 55,
+        width: 250,
+        borderColor: '#F4F5F8',
+        borderWidth: 1,
+        borderRadius: 10,
+        paddingLeft: 10,
+        fontSize: 16,
+        backgroundColor: '#F4F5F8',
+        color: colours.typography_80,
+        fontFamily: fonts.LatoRegular,
+    
+      },
+      textArea: {
+        paddingTop: 10,
+        height: 100,
+        textAlignVertical: 'top'
+      }
 })

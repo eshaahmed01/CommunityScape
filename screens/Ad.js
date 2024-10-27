@@ -130,6 +130,10 @@ const Ad = () => {
     }
   };
 
+  const handleLeads = () => {
+    navigation.navigate("Leads")
+  }
+
   // Get the current date
   const currentDate = new Date();
   const formattedDate = formatDate(currentDate);
@@ -216,7 +220,7 @@ This beautiful ${data?.Type === 'House' ? 'house' : 'apartment'} is now availabl
               color={colours.typography_80}
               style={{ marginTop: 10 }}
             >
-              {data?.Price}
+              ${data?.Price?.toLocaleString()}
 
             </FText>
             {data?.isSold ? (
@@ -291,6 +295,14 @@ This beautiful ${data?.Type === 'House' ? 'house' : 'apartment'} is now availabl
                     {estateData?.isSold ? 'Mark as unsold' : 'Mark as sold'}
                   </FText>}
               </TouchableOpacity>
+              
+              <TouchableOpacity disabled={loading} onPress={handleLeads} style={{ backgroundColor: "#F5F4F8", width: '90%', padding: 20, alignSelf: 'center', borderRadius: 10, marginTop: 10 }}>
+                {loading ? <ActivityIndicator color={colours.primary} />
+                  : <FText fontSize='large' fontWeight={700} color={colours.primary} style={{ alignSelf: 'center' }}>
+                    Check Leads
+                  </FText>}
+              </TouchableOpacity>
+
               {/* <TouchableOpacity onPress={() => fnOnShare()} style={{ backgroundColor: "#F5F4F8", width: '90%', padding: 20, alignSelf: 'center', marginTop: 20, borderRadius: 10 }}>
                 <FText fontSize='large' fontWeight={700} color={colours.primary} style={{ alignSelf: 'center' }}> Share </FText>
               </TouchableOpacity> */}
@@ -313,7 +325,7 @@ This beautiful ${data?.Type === 'House' ? 'house' : 'apartment'} is now availabl
             <View style={{ flexDirection: 'row' }}>
               <MaterialIcons name='error' size={24} color={colours.primary} style={{ marginTop: 1, marginRight: 5 }} />
               <FText fontSize="large" fontWeight="700" color={colours.typography_60}>
-                Are you sure you want to delete the account?
+                Are you sure you want to delete the listing?
               </FText>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>

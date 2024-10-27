@@ -46,6 +46,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { colours } from "./constants/colours";
 import fonts from "./constants/fonts";
+import Leads from "./screens/Leads";
 LogBox.ignoreLogs(["Warning: ..."]);
 LogBox.ignoreAllLogs();
 
@@ -213,9 +214,12 @@ function App() {
           options={{ headerShown: false }}
         />
 
+      <Stack.Screen
+          name="Leads"
+          component={Leads}
+          options={{ headerShown: false }}
+        />
 
-
-        
         <Stack.Screen
           name="ArchitecturalDetails"
           component={ArchitecturalDetails}

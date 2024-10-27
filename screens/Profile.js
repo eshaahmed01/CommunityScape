@@ -21,6 +21,7 @@ const Profile = ({ navigation }) => {
   const [error, setError] = useState(null);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [signOutModalVisible, setSignOutModalVisible] = useState(false);
+  
 
 
 

@@ -1,4 +1,4 @@
-import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Modal, Button, Alert } from 'react-native'
+import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Modal, Button, Alert, ActivityIndicator } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { colours } from '../constants/colours'
 import { Rating } from 'react-native-ratings';
@@ -21,38 +21,60 @@ const PropertyDetail = ({ route, navigation }) => {
     const [favModalVisible, setFavModalVisible] = useState(false);
     const [contactModalVisible, setContactModalVisible] = useState(false);
     const [sellerName, setSellerName] = useState(null);
-    const[ sellerPhone, setSellerPhone] = useState(null);
-    const[ sellerEmail, setSellerEmail] = useState(null);
+    const [sellerPhone, setSellerPhone] = useState(null);
+    const [sellerEmail, setSellerEmail] = useState(null);
     const [sellerMessage, setSellerMessage] = useState(null);
+    const [loader, setLoader] = useState(false);
 
-const handleSellerForm = () => {
-   if  (!sellerName){
-    Alert.alert("Enter your name");
-    return;
-    }
+    const handleSellerForm = async () => {
+        try {
+            if (!sellerName) {
+                Alert.alert("Enter your name");
+                return;
+            }
 
-    if (!sellerPhone){
-        Alert.alert("Enter your phone number");
-        return; 
+            if (!sellerPhone) {
+                Alert.alert("Enter your phone number");
+                return;
+            }
+
+            if (!sellerEmail) {
+                Alert.alert("Enter your email");
+                return;
+            }
+
+            if (!sellerMessage) {
+                Alert.alert("Enter your message to seller");
+                return;
+            }
+            setLoader(true);
+            const body = {
+                name: sellerName,
+                phone: sellerPhone,
+                email: sellerEmail,
+                message: sellerMessage,
+                createdAt: Date.now()
+            };
+
+            const estateId = estates[0]?.id;
+
+            const leadsCollectionRef = collection(db, `Estates/${estateId}/Leads`);
+            await addDoc(leadsCollectionRef, body);
+            setContactModalVisible(false);
+            setLoader(false);
+            setSellerName(null);
+            setSellerEmail(null);
+            setSellerMessage(null);
+            setSellerPhone(null);
+        } catch (error) {
+            console.log(error)
+            setLoader(false);
         }
 
-        if (!sellerEmail){
-            Alert.alert("Enter your email");
-            return; 
-     }
-
-     if (!sellerMessage){
-        Alert.alert("Enter your message to seller");
-            return;
-     }
-
-     Alert.alert("Information sent to seller");
-     setContactModalVisible(false);
-
-}
+    }
 
 
-    
+
     const [userData, setUserData] = useState(null);
     const { id, location, name } = route.params;
     console.log("Hello");
@@ -121,31 +143,31 @@ const handleSellerForm = () => {
     };
     useEffect(() => {
         const fetchUserData = async () => {
-          try {
-            const auth = getAuth(app);
-            const user = auth.currentUser;
-            if (user) {
-              const db = getFirestore(app);
-              const docRef = doc(db, 'users', user.uid);
-              const docSnap = await getDoc(docRef);
-              
-              if (docSnap.exists()) {
-                setUserData(docSnap.data());
-              } else {
-                setError('No such document!');
-              }
-            } else {
-              setError('No authenticated user found.');
+            try {
+                const auth = getAuth(app);
+                const user = auth.currentUser;
+                if (user) {
+                    const db = getFirestore(app);
+                    const docRef = doc(db, 'users', user.uid);
+                    const docSnap = await getDoc(docRef);
+
+                    if (docSnap.exists()) {
+                        setUserData(docSnap.data());
+                    } else {
+                        setError('No such document!');
+                    }
+                } else {
+                    setError('No authenticated user found.');
+                }
+            } catch (error) {
+                setError(error.message);
+            } finally {
+                setLoading(false);
             }
-          } catch (error) {
-            setError(error.message);
-          } finally {
-            setLoading(false);
-          }
         };
-      
+
         fetchUserData();
-      }, []);
+    }, []);
 
 
     const addReview = async (estateId: string, rating: number, desc: string, userId: string, userImage: string) => {
@@ -162,9 +184,9 @@ const handleSellerForm = () => {
             console.log('Review added successfully');
             setModalVisible(true);
 
-        setTimeout(() => {
-            setModalVisible(false);
-        }, 1000);
+            setTimeout(() => {
+                setModalVisible(false);
+            }, 1000);
         } catch (error) {
             console.error('Error adding review: ', error);
         } finally {
@@ -230,7 +252,7 @@ const handleSellerForm = () => {
     const [rating, setRating] = useState(0)
     const [reviewInput, setReviewInput] = useState('')
     const [modalVisible, setModalVisible] = useState(false);
-    
+
 
     const Images = {
         bgImage: require('../assets/img/ImgDetail1.jpg'),
@@ -279,7 +301,7 @@ const handleSellerForm = () => {
                         <BackButton />
                         <View style={styles.bgImageContainer}>
                             <HorizontalImageCarousel images={ExtractImage()} />
-                           
+
                             <TouchableOpacity style={styles.heartBtn} onPress={handleFavourites}>
                                 <Image source={Images.heart} style={{ width: 40, height: 40 }} />
                             </TouchableOpacity>
@@ -307,93 +329,96 @@ const handleSellerForm = () => {
                             <FText style={{ ...styles.bodyText, color: '#53587A', marginLeft: 5 }} fontSize='normal' fontWeight='400' color={colours.typography_60}>{formatState(estates[0].State)}</FText>
                         </View>
 
-                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}} >
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }} >
                             <FText style={{ paddingHorizontal: '5%', marginTop: 40 }} fontSize='h6' fontWeight='700' color={colours.primary}>Listed By</FText>
                             {estates[0].ListingType === "SellerListing" && (
-                    <TouchableOpacity 
-                   onPress={() => setContactModalVisible(true)} 
-                  style={{ marginLeft: 10, marginRight: 20, backgroundColor: colours.primary, paddingHorizontal: 10, paddingVertical: 10, borderRadius: 10, marginTop: 40 }}
-                   >
-                  <FText fontSize='small' fontWeight={400} color={colours.white}>Contact Seller</FText>
-                 </TouchableOpacity>
-                  )}
+                                <TouchableOpacity
+                                    onPress={() => setContactModalVisible(true)}
+                                    style={{ marginLeft: 10, marginRight: 20, backgroundColor: colours.primary, paddingHorizontal: 10, paddingVertical: 10, borderRadius: 10, marginTop: 40 }}
+                                >
+                                    <FText fontSize='small' fontWeight={400} color={colours.white}>Contact Seller</FText>
+                                </TouchableOpacity>
+                            )}
 
-    <Modal
-        animationType="slide"
-        transparent={true}
-        visible={contactModalVisible}
-        onRequestClose={() => {
-          setContactModalVisible(!contactModalVisible);
-        }}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalView}>
-           <FText fontSize='large' fontWeight={700} color={colours.primary}> Seller Contact form </FText>
-            <View style={styles.inputContainer}>
-                <FText fontSize="large" fontWeight={700} color={colours.primary} style={styles.label}>
-                  Name:
-                </FText>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter complete address"
-                  placeholderTextColor={"#A1A5C1"}
-                  onChangeText={setSellerName}
-                  value={sellerName}
-                />
-              </View>
+                            <Modal
+                                animationType="slide"
+                                transparent={true}
+                                visible={contactModalVisible}
+                                onRequestClose={() => {
+                                    setContactModalVisible(!contactModalVisible);
+                                }}
+                            >
+                                <View style={styles.modalOverlay}>
+                                    <View style={styles.modalView}>
+                                        <FText fontSize='large' fontWeight={700} color={colours.primary}> Seller Contact form </FText>
+                                        <View style={styles.inputContainer}>
+                                            <FText fontSize="large" fontWeight={700} color={colours.primary} style={styles.label}>
+                                                Name:
+                                            </FText>
+                                            <TextInput
+                                                style={styles.input}
+                                                placeholder="Enter complete address"
+                                                placeholderTextColor={"#A1A5C1"}
+                                                onChangeText={setSellerName}
+                                                value={sellerName}
+                                            />
+                                        </View>
 
-              <View style={styles.inputContainer}>
-                <FText fontSize="large" fontWeight={700} color={colours.primary} style={styles.label}>
-                  Phone:
-                </FText>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter complete address"
-                  placeholderTextColor={"#A1A5C1"}
-                  onChangeText={setSellerPhone}
-                  value={sellerPhone}
-                />
-              </View>
+                                        <View style={styles.inputContainer}>
+                                            <FText fontSize="large" fontWeight={700} color={colours.primary} style={styles.label}>
+                                                Phone:
+                                            </FText>
+                                            <TextInput
+                                                style={styles.input}
+                                                placeholder="Enter complete address"
+                                                placeholderTextColor={"#A1A5C1"}
+                                                onChangeText={setSellerPhone}
+                                                value={sellerPhone}
+                                            />
+                                        </View>
 
-              <View style={styles.inputContainer}>
-                <FText fontSize="large" fontWeight={700} color={colours.primary} style={styles.label}>
-                  Email:
-                </FText>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter complete address"
-                  placeholderTextColor={"#A1A5C1"}
-                  onChangeText={setSellerEmail}
-                  value={sellerEmail}
-                />
-              </View>
+                                        <View style={styles.inputContainer}>
+                                            <FText fontSize="large" fontWeight={700} color={colours.primary} style={styles.label}>
+                                                Email:
+                                            </FText>
+                                            <TextInput
+                                                style={styles.input}
+                                                placeholder="Enter complete address"
+                                                placeholderTextColor={"#A1A5C1"}
+                                                onChangeText={setSellerEmail}
+                                                value={sellerEmail}
+                                            />
+                                        </View>
 
-              <View style={styles.inputContainer}>
-        <FText fontSize="large" fontWeight={700} color={colours.primary} style={styles.label}>
-          Message: 
-        </FText>
-        <TextInput
-          style={[styles.input, styles.textArea]}
-          placeholder="Enter your message"
-          multiline
-          numberOfLines={2}
-          placeholderTextColor={"#A1A5C1"}
-          onChangeText={setSellerMessage}
-          value={sellerMessage}
-        />
-      </View>
+                                        <View style={styles.inputContainer}>
+                                            <FText fontSize="large" fontWeight={700} color={colours.primary} style={styles.label}>
+                                                Message:
+                                            </FText>
+                                            <TextInput
+                                                style={[styles.input, styles.textArea]}
+                                                placeholder="Enter your message"
+                                                multiline
+                                                numberOfLines={2}
+                                                placeholderTextColor={"#A1A5C1"}
+                                                onChangeText={setSellerMessage}
+                                                value={sellerMessage}
+                                            />
+                                        </View>
 
-      <TouchableOpacity style={{ backgroundColor: '#8BC83F', borderRadius: 10, marginHorizontal: 20, marginTop: 10, alignItems: 'center', width: '60%', height: 46, justifyContent: 'center', alignSelf: 'center', marginBottom: 10 }} onPress={handleSellerForm}>
-            <FText fontSize='small' fontWeight='400' color={colours.white}>Send</FText>
-    </TouchableOpacity>
+                                        <TouchableOpacity disabled={loader} style={{ backgroundColor: '#8BC83F', borderRadius: 10, marginHorizontal: 20, marginTop: 10, alignItems: 'center', width: '60%', height: 46, justifyContent: 'center', alignSelf: 'center', marginBottom: 10 }} onPress={handleSellerForm}>
+                                            {
+                                                loader ? <ActivityIndicator color={colours.white} />
+                                                    : <FText fontSize='small' fontWeight='400' color={colours.white}>Send</FText>
+                                            }
+                                        </TouchableOpacity>
 
 
-          </View>
-        </View>
-      </Modal>
+                                    </View>
+                                </View>
+                            </Modal>
 
                         </View>
-                        
+
                         <View style={styles.clientView}>
                             <Image source={{ uri: estateDataObj[0]?.ListerImage }} style={{ width: 50, height: 50, borderRadius: 50 }} />
                             <View style={{ marginLeft: 10 }}>
@@ -410,7 +435,7 @@ const handleSellerForm = () => {
                                 ))}
                             </ScrollView>
                         </View>
-                     
+
                         <FText style={{ paddingHorizontal: '5%', marginTop: 40 }} fontSize='h6' fontWeight='700' color={colours.primary}>Location & Public Facilities</FText>
                         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, paddingHorizontal: '5%' }}>
                             <Image source={Images.locationBg} style={{ width: 50, height: 50 }} />
@@ -427,14 +452,14 @@ const handleSellerForm = () => {
                         </View>
                         <View style={{ marginTop: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20 }}>
                             <FText fontSize='h6' fontWeight='700' color={colours.primary}>Cost of Rent</FText>
-                            
+
                         </View>
                         <View style={{ ...styles.clientView, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center' }}>
                             <FText fontSize='large' fontWeight='700' color={colours.typography_60} >$830/<FText fontSize='large' fontWeight='700' color={colours.typography_60}>month*</FText></FText>
                             <FText fontSize='small' fontWeight='400' color={colours.typography_60}>Contact listers for negotiation</FText>
                         </View>
                         <FText fontSize='h6' fontWeight='700' color={colours.primary} style={{ marginLeft: 20, marginTop: 20 }}>Reviews</FText>
-                        {reviews.slice(0,2).map(review => (
+                        {reviews.slice(0, 2).map(review => (
                             <ReviewCard
                                 key={review.id}
                                 name={review.userId}
@@ -457,7 +482,7 @@ const handleSellerForm = () => {
                             value={reviewInput}
                             onChangeText={text => setReviewInput(text)}
                         />
-                        
+
                         <Modal
                             animationType="slide"
                             transparent={true}
@@ -469,28 +494,28 @@ const handleSellerForm = () => {
                             <View style={styles.modalOverlay}>
                                 <View style={styles.modalView}>
                                     <FText fontSize='large' fontWeight='400' color={colours.typography_60}>Review Added!</FText>
-                                    
+
                                 </View>
                             </View>
                         </Modal>
 
-                       {/* popup when favourite button is pressed */}
-     <Modal
-        animationType="slide"
-        transparent={true}
-        visible={favModalVisible}
-        onRequestClose={() => {
-          setFavModalVisible(!favModalVisible);
-        }}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalView}>
-            <FText fontSize="large" fontWeight="400" color={colours.typography_60}>
-              Added to Favorites!
-            </FText>
-          </View>
-        </View>
-      </Modal>
+                        {/* popup when favourite button is pressed */}
+                        <Modal
+                            animationType="slide"
+                            transparent={true}
+                            visible={favModalVisible}
+                            onRequestClose={() => {
+                                setFavModalVisible(!favModalVisible);
+                            }}
+                        >
+                            <View style={styles.modalOverlay}>
+                                <View style={styles.modalView}>
+                                    <FText fontSize="large" fontWeight="400" color={colours.typography_60}>
+                                        Added to Favorites!
+                                    </FText>
+                                </View>
+                            </View>
+                        </Modal>
 
 
                         <FText style={{ paddingHorizontal: 20, marginTop: 20, marginBottom: 20 }} fontSize='h6' fontWeight='700' color={colours.primary} >Rate this Property</FText>
@@ -693,11 +718,11 @@ const styles = StyleSheet.create({
         marginLeft: 20,
         marginRight: 30,
         marginBottom: 10
-      },
-      label: {
+    },
+    label: {
         marginBottom: 5
-      },
-      input: {
+    },
+    input: {
         height: 55,
         width: 250,
         borderColor: '#F4F5F8',
@@ -708,11 +733,11 @@ const styles = StyleSheet.create({
         backgroundColor: '#F4F5F8',
         color: colours.typography_80,
         fontFamily: fonts.LatoRegular,
-    
-      },
-      textArea: {
+
+    },
+    textArea: {
         paddingTop: 10,
         height: 100,
         textAlignVertical: 'top'
-      }
+    }
 })

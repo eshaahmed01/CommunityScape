@@ -131,7 +131,8 @@ const Ad = () => {
   };
 
   const handleLeads = () => {
-    navigation.navigate("Leads")
+    setModalVisible(false);
+    navigation.navigate("Leads", {id : estateData?.id});
   }
 
   // Get the current date

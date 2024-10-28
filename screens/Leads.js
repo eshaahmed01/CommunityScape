@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ImageBackground, ScrollView, TextInput, FlatList } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ImageBackground, ScrollView, TextInput, FlatList, ActivityIndicator } from 'react-native';
 import { colours } from '../constants/colours';
 import fonts from '../constants/fonts';
 import FText from '../components/Ftext';
@@ -7,93 +7,98 @@ import { db } from "../firebaseconfig";
 import { addDoc, collection, getDocs, query, limit, where } from "firebase/firestore";
 import { useEffect } from 'react';
 import BackButton from '../components/BackButtons';
-
-
-const LeadData = [
-    {
-        name: 'Esha Ahmed Abbasi',
-        phone : '718 650 3737',
-        email : 'eshaabbasi234@gmail.com',
-        message: 'I am interested in this property'
-    },
-    {
-        name: 'Esha Ahmed Abbasi',
-        phone : '718 650 3737',
-        email : 'eshaabbasi234@gmail.com',
-        message: 'I am interested in this property'
-    }
-
-]
+import { useRoute } from '@react-navigation/native';
 
 const FeaturedCard = ({ data }) => {
-    
-    return (
-      <TouchableOpacity style={styles.featuredCard} activeOpacity={0.8} >
-        <View style={{flexDirection: 'column'}}> 
-            <View> 
+
+  return (
+    <TouchableOpacity style={styles.featuredCard} activeOpacity={0.8} >
+      <View style={{ flexDirection: 'column' }}>
+        <View>
           <FText
             fontSize="medium"
             fontWeight="700"
             color={colours.typography_80}
             style={{ marginTop: 4, marginRight: 10 }}
           >
-            {data.name} 
-            
+            {data.name}
+
           </FText>
-          </View>
+        </View>
 
-          
-           <View style={{marginTop: 5}}> 
-            <FText
-              fontSize="medium"
-              fontWeight="700"
-              color={colours.typography_80}
-           
-            >
-              {data.phone}
-            </FText>
-            </View>
 
-            <View style={{marginTop: 5}}> 
-            <FText
-              fontSize="medium"
-              fontWeight="700"
-              color={colours.typography_80}
-              
-            >
-              {data.email}
-            </FText>
-            </View>
+        <View style={{ marginTop: 5 }}>
+          <FText
+            fontSize="medium"
+            fontWeight="700"
+            color={colours.typography_80}
 
-        <View style={{marginTop: 5}}> 
-            <FText
-              fontSize="medium"
-              fontWeight="700"
-              color={colours.typography_80}
-            
-            >
-              Message: 
-            </FText>
-            <FText
-              fontSize="medium"
-              fontWeight={400}
-              color={colours.typography_80}
-            
-            >
-              {data.message} 
-            </FText>
+          >
+            {data.phone}
+          </FText>
+        </View>
 
-            </View>
-            </View>
+        <View style={{ marginTop: 5 }}>
+          <FText
+            fontSize="medium"
+            fontWeight="700"
+            color={colours.typography_80}
 
-            
-      </TouchableOpacity>
-    )
-  };
+          >
+            {data.email}
+          </FText>
+        </View>
+
+        <View style={{ marginTop: 5 }}>
+          <FText
+            fontSize="medium"
+            fontWeight="700"
+            color={colours.typography_80}
+
+          >
+            Message:
+          </FText>
+          <FText
+            fontSize="medium"
+            fontWeight={400}
+            color={colours.typography_80}
+
+          >
+            {data.message}
+          </FText>
+
+        </View>
+      </View>
+
+
+    </TouchableOpacity>
+  )
+};
 
 const Leads = () => {
-    return (
-        <ScrollView style={styles.mainContainer}>
+  const route = useRoute();
+  const estateId = route?.params?.id;
+  const [leads, setLeads] = useState([]);
+  const [loader, setLoader] = useState(false);
+
+  useEffect(() => { fetchLeads(); }, []);
+
+  const fetchLeads = async () => {
+    try {
+      setLoader(true);
+      const leadsRef = collection(db, "Estates", estateId, "Leads");
+      const allLeads = await getDocs(leadsRef);
+      const leadsData = allLeads.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setLeads(leadsData);
+      setLoader(false);
+    } catch (error) {
+      console.error('Error fetching leads:', error);
+      setLoader(false);
+    }
+  };
+
+  return (
+    <ScrollView style={styles.mainContainer} contentContainerStyle={{ flex: 1 }} >
       <BackButton />
       <View>
         <FText fontSize="h5" fontWeight="700" color={colours.primary} style={{ marginTop: 120, marginLeft: 30 }}>
@@ -102,35 +107,42 @@ const Leads = () => {
         <FText fontSize="normal" fontWeight={400} color={colours.typography_80} style={{ marginTop: 2, marginLeft: 30 }}>
           Here are the following leads for your selected property
         </FText>
+      </View>
+
+      {
+        loader ? <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <ActivityIndicator color={colours.primary} size={'large'} />
         </View>
+          : leads?.length > 0 ? <FlatList
+            data={leads}
+            keyExtractor={(item, index) => index.toString()} 
+            renderItem={({ item }) => <FeaturedCard data={item} />} 
+            contentContainerStyle={{ paddingHorizontal: 30, marginTop: 20 }}
+          /> : <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+            <Text>No Leads</Text>
+          </View>
+      }
 
-        <FlatList
-                data={LeadData}
-                keyExtractor={(item, index) => index.toString()} // Unique key for each item
-                renderItem={({ item }) => <FeaturedCard data={item} />} // Render each lead using FeaturedCard
-                contentContainerStyle={{ paddingHorizontal: 30, marginTop: 20 }}
-            />
 
-        
-        </ScrollView>
-    )
+    </ScrollView>
+  )
 }
 
 export default Leads;
 
 const styles = StyleSheet.create({
 
-    mainContainer: {
-        flex: 1,
-        backgroundColor: colours.secondary
-    },
-    featuredCard: {
-        width: 300,
-        height: 180,
-        backgroundColor: "#F5F4F8",
-        borderRadius: 20,
-        marginTop: 20,
-        marginRight: 20,
-        padding: 20
-      }
+  mainContainer: {
+    flex: 1,
+    backgroundColor: colours.secondary
+  },
+  featuredCard: {
+    width: 300,
+    height: 180,
+    backgroundColor: "#F5F4F8",
+    borderRadius: 20,
+    marginTop: 20,
+    marginRight: 20,
+    padding: 20
+  }
 })

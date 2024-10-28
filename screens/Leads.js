@@ -8,6 +8,7 @@ import { addDoc, collection, getDocs, query, limit, where } from "firebase/fires
 import { useEffect } from 'react';
 import BackButton from '../components/BackButtons';
 import { useRoute } from '@react-navigation/native';
+import LottieView from 'lottie-react-native';
 
 const FeaturedCard = ({ data }) => {
 
@@ -111,7 +112,7 @@ const Leads = () => {
 
       {
         loader ? <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator color={colours.primary} size={'large'} />
+          <ActivityIndicator color={colours.primary} size={'large'} style={{bottom:40}} />
         </View>
           : leads?.length > 0 ? <FlatList
             data={leads}
@@ -119,7 +120,7 @@ const Leads = () => {
             renderItem={({ item }) => <FeaturedCard data={item} />} 
             contentContainerStyle={{ paddingHorizontal: 30, marginTop: 20 }}
           /> : <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <Text>No Leads</Text>
+            <LottieView source={require('../assets/animations/empty_animation.json')} style={{ height:200, width:200, bottom:40 }} autoPlay loop />
           </View>
       }
 

@@ -9,10 +9,7 @@ import Icon from 'react-native-vector-icons/AntDesign'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'; 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { getAuth, signOut, updatePassword } from 'firebase/auth';
-
-
-
-
+import Entypo from 'react-native-vector-icons/Entypo'
 
 
 const Profile = ({ navigation }) => {
@@ -233,7 +230,15 @@ const Profile = ({ navigation }) => {
           </View>
         </View>
       </Modal>
+
       </View>
+      <View style= {{flexDirection: 'row', justifyContent: 'space-between', marginLeft: 20, marginTop: 15, backgroundColor: '#F4F5F8', height : 50, alignItems: 'center', padding: 5}}> 
+          <TouchableOpacity style={{flexDirection: 'row', marginBottom: 10}} onPress={() => navigation.navigate('EmailHelp')}> 
+          <Entypo name='help' size={24} color={colours.primary} style={styles.optionIcon} />
+          <FText fontSize='large' fontWeight={700} color={colours.primary} > Email Helpdesk </FText>
+          </TouchableOpacity>
+          
+        </View>
     </View>
     
 

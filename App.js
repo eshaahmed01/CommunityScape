@@ -47,6 +47,17 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import { colours } from "./constants/colours";
 import fonts from "./constants/fonts";
 import Leads from "./screens/Leads";
+import Investor from "./screens/Investor";
+import InvestorProfile from "./screens/InvestorProfile";
+import InvestorProperty from "./screens/InvestorProperty";
+import CustomDrawer from "./components/CustomDrawer";
+import Icon2 from 'react-native-vector-icons/Entypo'
+import Icon from 'react-native-vector-icons/Ionicons'
+import Icon3 from 'react-native-vector-icons/Foundation'
+import Icon4 from 'react-native-vector-icons/AntDesign'
+import Survey from "./screens/Survey";
+import EmailHelp from "./screens/EmailHelp";
+
 LogBox.ignoreLogs(["Warning: ..."]);
 LogBox.ignoreAllLogs();
 
@@ -82,38 +93,48 @@ const SellerTab = () => (
 )
 const DrawerTabs = () => (
   <Drawer.Navigator
-    // drawerContent={(props) => <CustomDrawer {...props} />}
+    drawerContent={(props) => <CustomDrawer {...props} />}
     screenOptions={{
       headerShown: false,
-      drawerLabelStyle: { color: colours.primary, fontWeight: '600', fontFamily: fonts.LatoBold, fontSize: 20 },
-      drawerItemStyle: { paddingVertical: 0, marginBottom: "1%", marginLeft: "2%" },
+      drawerLabelStyle: { color: colours.primary, fontWeight: '600', fontFamily: fonts.LatoBold, fontSize: 20, marginLeft: -20 },
+      drawerItemStyle: { paddingVertical: 0, marginBottom: "1%", marginLeft: "1%" },
     }}
   >
     <Drawer.Screen 
       name="Home" 
       component={Homescreen} 
-      // options={{
-      //   drawerIcon: () => <Icon2 name="home" size={22} color={colours.primary} />,
-      // }} 
+      options={{
+        drawerIcon: () => <Icon2 name="home" size={22} color={colours.primary} />,
+      }} 
     />
    
     <Drawer.Screen 
       name="Architect Profile" 
       component={ArchitectProfile} 
-      // options={{
-      //   drawerIcon: () => 
-      //     <Icon name="person" size={30} color={colours.primary} />,
+      options={{
+        drawerIcon: () => 
+          <Icon name="person" size={22} color={colours.primary} />,
          
-      // }} 
+      }} 
     />
      <Drawer.Screen 
       name="Favourites" 
       component={Favourites} 
-      // options={{
-      //   drawerIcon: () => 
-      //     <Icon3 name="heart" size={30} color={colours.primary} />,
+      options={{
+        drawerIcon: () => 
+          <Icon3 name="heart" size={22} color={colours.primary} />,
          
-      // }} 
+      }} 
+    />
+
+     <Drawer.Screen 
+      name="Survey" 
+      component={Survey} 
+      options={{
+        drawerIcon: () => 
+          <Icon4 name="questioncircle" size={22} color={colours.primary} />,
+         
+      }} 
     />
     
     
@@ -253,11 +274,36 @@ function App() {
           component={OtherPropertyDetail}
          
         />
+        <Stack.Screen
+          name="InvestorProfile"
+          component={InvestorProfile}
+         
+        />
+
+      <Stack.Screen
+          name="Investor"
+          component={Investor}
+         
+        />
+
+        <Stack.Screen
+          name="InvestorProperty"
+          component={InvestorProperty}
+         
+        />
+
+
 
 
         <Stack.Screen
           name="ReviewsDetail"
           component={ReviewsDetail}
+          
+        />
+
+       <Stack.Screen
+          name="EmailHelp"
+          component={EmailHelp}
           
         />
         <Stack.Screen name="TopLocations" component={TopLocations} />

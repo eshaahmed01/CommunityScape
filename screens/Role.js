@@ -27,6 +27,10 @@ const Role = ({ navigation }) => {
     if(selectedRole=="Buyer"){
       navigation.navigate('HomeTab')
     }
+
+    if(selectedRole=="Investor"){
+      navigation.navigate('Investor')
+    }
     setSelectedRole(null);
   };
 

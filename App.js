@@ -101,32 +101,6 @@ const DrawerTabs = () => (
       drawerItemStyle: { paddingVertical: 0, marginBottom: "1%", marginLeft: "1%" },
     }}
   >
-    <Drawer.Screen
-      name="Home"
-      component={Homescreen}
-    // options={{
-    //   drawerIcon: () => <Icon2 name="home" size={22} color={colours.primary} />,
-    // }} 
-    />
-
-    <Drawer.Screen
-      name="Architect Profile"
-      component={ArchitectProfile}
-    // options={{
-    //   drawerIcon: () => 
-    //     <Icon name="person" size={30} color={colours.primary} />,
-
-    // }} 
-    />
-    <Drawer.Screen
-      name="Favourites"
-      component={Favourites}
-    // options={{
-    //   drawerIcon: () => 
-    //     <Icon3 name="heart" size={30} color={colours.primary} />,
-
-    // }} 
-    />
     
     <Drawer.Screen 
       name="Home" 

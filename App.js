@@ -47,6 +47,8 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import { colours } from "./constants/colours";
 import fonts from "./constants/fonts";
 import Leads from "./screens/Leads";
+import ChatBotScreen from "./screens/ChatBotScreen";
+
 LogBox.ignoreLogs(["Warning: ..."]);
 LogBox.ignoreAllLogs();
 
@@ -70,14 +72,14 @@ const HomeTab = () => (
 );
 const SellerTab = () => (
   <Tab.Navigator
-  tabBar={(props) => <SellerTabBar {...props} />}
-  screenOptions={config}
->
-  <Tab.Screen name="SellerDashboard" component={SellerDashboard} />
-  <Tab.Screen name="Search" component={Search} />
-  <Tab.Screen name="Ads" component={Ad} />
-  <Tab.Screen name="Profile" component={Profile} />
-</Tab.Navigator>
+    tabBar={(props) => <SellerTabBar {...props} />}
+    screenOptions={config}
+  >
+    <Tab.Screen name="SellerDashboard" component={SellerDashboard} />
+    <Tab.Screen name="Search" component={Search} />
+    <Tab.Screen name="Ads" component={Ad} />
+    <Tab.Screen name="Profile" component={Profile} />
+  </Tab.Navigator>
 
 )
 const DrawerTabs = () => (
@@ -89,34 +91,34 @@ const DrawerTabs = () => (
       drawerItemStyle: { paddingVertical: 0, marginBottom: "1%", marginLeft: "2%" },
     }}
   >
-    <Drawer.Screen 
-      name="Home" 
-      component={Homescreen} 
-      // options={{
-      //   drawerIcon: () => <Icon2 name="home" size={22} color={colours.primary} />,
-      // }} 
+    <Drawer.Screen
+      name="Home"
+      component={Homescreen}
+    // options={{
+    //   drawerIcon: () => <Icon2 name="home" size={22} color={colours.primary} />,
+    // }} 
     />
-   
-    <Drawer.Screen 
-      name="Architect Profile" 
-      component={ArchitectProfile} 
-      // options={{
-      //   drawerIcon: () => 
-      //     <Icon name="person" size={30} color={colours.primary} />,
-         
-      // }} 
+
+    <Drawer.Screen
+      name="Architect Profile"
+      component={ArchitectProfile}
+    // options={{
+    //   drawerIcon: () => 
+    //     <Icon name="person" size={30} color={colours.primary} />,
+
+    // }} 
     />
-     <Drawer.Screen 
-      name="Favourites" 
-      component={Favourites} 
-      // options={{
-      //   drawerIcon: () => 
-      //     <Icon3 name="heart" size={30} color={colours.primary} />,
-         
-      // }} 
+    <Drawer.Screen
+      name="Favourites"
+      component={Favourites}
+    // options={{
+    //   drawerIcon: () => 
+    //     <Icon3 name="heart" size={30} color={colours.primary} />,
+
+    // }} 
     />
-    
-    
+
+
   </Drawer.Navigator>
 );
 
@@ -130,12 +132,12 @@ function App() {
         <Stack.Screen
           name="SplashScreen"
           component={SplashScreen}
-          
+
         />
         <Stack.Screen
           name="SignScreen"
           component={Sign}
-          
+
         />
 
         <Stack.Screen
@@ -144,9 +146,13 @@ function App() {
           options={{ headerShown: false }}
         />
 
+        <Stack.Screen
+          name="ChatBotScreen"
+          component={ChatBotScreen}
+        />
 
 
-    <Stack.Screen
+        <Stack.Screen
           name="Role"
           component={Role}
           options={{ headerShown: false }}
@@ -157,7 +163,7 @@ function App() {
         <Stack.Screen
           name="SignUp"
           component={SignUp}
-          
+
         />
         <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
         <Stack.Screen name="Category" component={Category} />
@@ -168,45 +174,45 @@ function App() {
           options={{ headerShown: false }}
         />
 
-         <Stack.Screen
+        <Stack.Screen
           name="ListingForm2"
           component={ListingForm2}
           options={{ headerShown: false }}
         />
 
-         <Stack.Screen
+        <Stack.Screen
           name="ListingForm3"
           component={ListingForm3}
           options={{ headerShown: false }}
         />
-  
 
- 
+
+
 
 
 
         <Stack.Screen
           name="LocationForm"
           component={LocationForm}
-         
+
         />
 
-         <Stack.Screen
+        <Stack.Screen
           name="LocationSuggestions"
           component={LocationSuggestions}
-         
+
         />
 
         <Stack.Screen
           name="SuggestionDetail"
           component={SuggestionDetail}
-         
+
         />
 
-      <Stack.Screen
+        <Stack.Screen
           name="Community"
           component={Community}
-         
+
         />
         <Stack.Screen
           name="SellerTab"
@@ -214,7 +220,7 @@ function App() {
           options={{ headerShown: false }}
         />
 
-      <Stack.Screen
+        <Stack.Screen
           name="Leads"
           component={Leads}
           options={{ headerShown: false }}
@@ -223,14 +229,14 @@ function App() {
         <Stack.Screen
           name="ArchitecturalDetails"
           component={ArchitecturalDetails}
-         
+
         />
         <Stack.Screen
           name="HomeModels"
           component={HomeModels}
-         
+
         />
-         <Stack.Screen
+        <Stack.Screen
           name="Camera"
           component={Camera}
           options={{ headerShown: false }}
@@ -238,33 +244,33 @@ function App() {
         <Stack.Screen
           name="CostEstimates"
           component={CostEstimates}
-         
+
         />
 
-        <Stack.Screen name="Estates" component={Estates}/>
+        <Stack.Screen name="Estates" component={Estates} />
 
         <Stack.Screen
           name="PropertyDetail"
           component={PropertyDetail}
-         
+
         />
         <Stack.Screen
           name="OtherPropertyDetail"
           component={OtherPropertyDetail}
-         
+
         />
 
 
         <Stack.Screen
           name="ReviewsDetail"
           component={ReviewsDetail}
-          
+
         />
         <Stack.Screen name="TopLocations" component={TopLocations} />
         <Stack.Screen name="LocationDetails" component={LocationDetails} />
         <Stack.Screen name="TopArchitects" component={TopArchitects} />
         <Stack.Screen name="ProfileDetails" component={ProfileDetails} />
-        
+
 
         <Stack.Screen
           name="map"
@@ -275,7 +281,7 @@ function App() {
           name="mapS"
           component={mapS}
           options={{ headerShown: false }}
-        /> 
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

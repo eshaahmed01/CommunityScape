@@ -1,7 +1,7 @@
 import { FlatList, ScrollView, TouchableOpacity, View, Image, StyleSheet, TextInput, ActivityIndicator, Linking } from "react-native";
 import React, { useState, useEffect } from "react";
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
-import { app, db } from '../firebaseconfig'; // Ensure correct import
+import { getFirestore, collection, getDocs, query, where, addDoc } from 'firebase/firestore';
+import { app, auth, db } from '../firebaseconfig'; // Ensure correct import
 import FText from "../components/Ftext";
 import { colours } from "../constants/colours";
 import BackButton from "../components/BackButtons";
@@ -12,9 +12,37 @@ import * as MailComposer from 'expo-mail-composer';
 
 const EmailHelp = () => {
   const [message, setMessage] = useState(null);
+  const [userData, setUserData] = useState({ name: "", email: "" });
+
+  useEffect(()=>{
+    fetchUserData();
+  },[]);
+
+  const fetchUserData = async () => {
+    try {
+      const user = auth.currentUser;
+
+      if (user) {
+        const userDoc = await getDocs(query(collection(db, 'users'), where('email', '==', user.email)));
+
+        if (!userDoc.empty) {
+          const data = userDoc.docs[0].data();
+          setUserData({ name: data.fullName, email: data.email });
+        } else {
+          console.log('No user document found!');
+        }
+      } else {
+        console.log('No user is signed in.');
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  };
 
   const fnSendMail = async() => {
     try {
+      const emailsRef = collection(db, 'CustomerSupport');
+
       MailComposer.isAvailableAsync();
       const options = {
         recipients: ['eshaabbasi@gmail.com'],
@@ -22,7 +50,14 @@ const EmailHelp = () => {
         body: message,
       };
       await MailComposer.composeAsync(options);
+      
       setMessage(null);
+
+      await addDoc(emailsRef, {
+        email : userData?.email,
+        message : message
+      });
+      
     } catch (error) {
       Alert.alert('Error', 'There was a problem sending the email.');
     }

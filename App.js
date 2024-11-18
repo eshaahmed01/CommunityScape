@@ -58,6 +58,7 @@ import Icon3 from 'react-native-vector-icons/Foundation'
 import Icon4 from 'react-native-vector-icons/AntDesign'
 import Survey from "./screens/Survey";
 import EmailHelp from "./screens/EmailHelp";
+import FAQ from "./screens/FAQ";
 
 LogBox.ignoreLogs(["Warning: ..."]);
 LogBox.ignoreAllLogs();
@@ -195,6 +196,12 @@ function App() {
           options={{ headerShown: false }}
         />
 
+      <Stack.Screen
+          name="EditProfile"
+          component={EditProfile}
+          options={{ headerShown: false }}
+        />
+        
         <Stack.Screen
           name="ListingForm2"
           component={ListingForm2}
@@ -204,6 +211,12 @@ function App() {
         <Stack.Screen
           name="ListingForm3"
           component={ListingForm3}
+          options={{ headerShown: false }}
+        />
+
+<Stack.Screen
+          name="FAQ"
+          component={FAQ}
           options={{ headerShown: false }}
         />
 

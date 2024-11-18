@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, ActivityIndicator, TouchableOpacity, Alert, Modal } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, Text, Image, StyleSheet, ActivityIndicator, TouchableOpacity, Alert, Modal, Animated, Pressable } from 'react-native';
 import { getFirestore, doc, getDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { app , db, auth} from '../firebaseconfig'; // Adjust the path as necessary
 import FText from '../components/Ftext'
@@ -9,7 +9,9 @@ import Icon from 'react-native-vector-icons/AntDesign'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'; 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { getAuth, signOut, updatePassword } from 'firebase/auth';
-import Entypo from 'react-native-vector-icons/Entypo'
+import Ionicons from 'react-native-vector-icons/Ionicons'
+import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons'
+
 
 
 const Profile = ({ navigation }) => {
@@ -18,7 +20,29 @@ const Profile = ({ navigation }) => {
   const [error, setError] = useState(null);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [signOutModalVisible, setSignOutModalVisible] = useState(false);
-  
+  const [supportModalVisible, setSupportModalVisible] = useState(false);
+
+  const slideAnim = useRef(new Animated.Value(500)).current;
+
+
+  const openModal = () => {
+    setSupportModalVisible(true);
+    Animated.spring(slideAnim, {
+      toValue: 0,
+      useNativeDriver: true,
+      tension: 20,
+    }).start();
+  };
+
+  const closeModal = () => {
+    Animated.spring(slideAnim, {
+      toValue: 300,
+      useNativeDriver: true,
+      tension: 20,
+    }).start(() => {
+      setSupportModalVisible(false);
+    });
+  };
 
 
 
@@ -233,12 +257,77 @@ const Profile = ({ navigation }) => {
 
       </View>
       <View style= {{flexDirection: 'row', justifyContent: 'space-between', marginLeft: 20, marginTop: 15, backgroundColor: '#F4F5F8', height : 50, alignItems: 'center', padding: 5}}> 
-          <TouchableOpacity style={{flexDirection: 'row', marginBottom: 10}} onPress={() => navigation.navigate('EmailHelp')}> 
-          <Entypo name='help' size={24} color={colours.primary} style={styles.optionIcon} />
-          <FText fontSize='large' fontWeight={700} color={colours.primary} > Email Helpdesk </FText>
+          <TouchableOpacity style={{flexDirection: 'row', marginBottom: 10}} onPress={() => openModal()}> 
+          <MaterialIcons name='help-center' size={24} color={colours.primary} style={styles.optionIcon} />
+          <FText fontSize='large' fontWeight={700} color={colours.primary} > Support Center </FText>
           </TouchableOpacity>
           
         </View>
+
+        <Modal
+        transparent={true}
+        visible={supportModalVisible}
+        animationType="none"
+        onRequestClose={closeModal}
+      >
+
+        <Pressable style={styles.supportmodalOverlay} onPress={closeModal}>
+          <Animated.View style={[styles.supportmodalView, { transform: [{ translateY: slideAnim }] }]}>
+
+            <View >
+
+            <FText fontSize='h5' fontWeight={700} color={colours.primary} style={{marginLeft: 5}} > Support </FText>
+              
+              <View style={{marginBottom: 20}}> 
+              
+
+            <View style= {{flexDirection: 'row', justifyContent: 'space-between', marginLeft: 5, marginTop: 30, backgroundColor: '#F4F5F8', height : 100,  padding: 5, width: '100%'}}> 
+          <View style={{flexDirection: 'row', marginBottom: 10, marginTop: 20}}> 
+            <View style={styles.optionIcon}> 
+          <SimpleLineIcons name='exclamation' size={20} color={colours.primary}  />
+          </View>
+          <FText fontSize='medium' fontWeight={700} color={colours.primary} > Help Center </FText>
+         
+          </View>
+          <TouchableOpacity style={{marginTop: -5, marginTop: 20}} onPress={() => navigation.navigate('FAQ')} > 
+            <Icon name='arrowright' size={20} color={colours.primary}> </Icon>
+
+          </TouchableOpacity>
+        </View>
+        <FText fontSize='small' fontWeight={400} color={colours.primary} style={{marginTop: -45, marginLeft: 10}} > Find out about how CommunityScape works </FText>
+
+        </View>
+              
+        <View style={{marginBottom: 20}}> 
+              
+
+              <View style= {{flexDirection: 'row', justifyContent: 'space-between', marginLeft: 5, marginTop: 30, backgroundColor: '#F4F5F8', height : 90,  padding: 5, width: '100%'}}> 
+            <View style={{flexDirection: 'row', marginBottom: 10, marginTop: 20}}> 
+              <View style={styles.optionIcon}> 
+            <Ionicons name='help-circle-outline' size={24} color={colours.primary}  />
+            </View>
+            <FText fontSize='medium' fontWeight={700} color={colours.primary} > Contact Us </FText>
+           
+            </View>
+            <TouchableOpacity style={{marginTop: -5, marginTop: 20}} onPress={() => navigation.navigate('EmailHelp')} > 
+              <Icon name='arrowright' size={20} color={colours.primary}> </Icon>
+  
+            </TouchableOpacity>
+          </View>
+          <FText fontSize='small' fontWeight={400} color={colours.primary} style={{marginTop: -38, marginLeft: 10}} > Resolve a specific issue </FText>
+  
+          </View>
+
+              {/* <TouchableOpacity onPress={() => fnOnShare()} style={{ backgroundColor: "#F5F4F8", width: '90%', padding: 20, alignSelf: 'center', marginTop: 20, borderRadius: 10 }}>
+                <FText fontSize='large' fontWeight={700} color={colours.primary} style={{ alignSelf: 'center' }}> Share </FText>
+              </TouchableOpacity> */}
+            </View>
+
+          </Animated.View>
+        </Pressable>
+      </Modal>
+
+       
     </View>
     
 
@@ -281,6 +370,29 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'red',
   },
+
+  supportmodalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+
+  },
+ supportmodalView: {
+    marginTop: 'auto',
+    backgroundColor: 'white',
+    borderTopLeftRadius: 50,
+    borderTopRightRadius: 50,
+    padding: 35,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+
 
   modalOverlay: {
     flex: 1,

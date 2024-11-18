@@ -1,7 +1,7 @@
 import { FlatList, ScrollView, TouchableOpacity, View, Image, StyleSheet, TextInput, ActivityIndicator, Linking } from "react-native";
 import React, { useState, useEffect } from "react";
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
-import { app, db } from '../firebaseconfig'; // Ensure correct import
+import { addDoc, collection, getDocs, query, limit, where } from "firebase/firestore";
+
 import FText from "../components/Ftext";
 import { colours } from "../constants/colours";
 import BackButton from "../components/BackButtons";
@@ -9,9 +9,16 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import fonts from "../constants/fonts";
 import DropDownPicker from 'react-native-dropdown-picker';
 import * as MailComposer from 'expo-mail-composer';
+import Icon2 from 'react-native-vector-icons/FontAwesome6'
+import Icons from 'react-native-vector-icons/AntDesign';
+import { db, auth } from "../firebaseconfig"; // This is your Firestore config
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import { app } from '../firebaseconfig'; // Adjust the path as necessary
 
 const EmailHelp = () => {
   const [message, setMessage] = useState(null);
+  const [userData, setUserData] = useState(null);
 
   const fnSendMail = async() => {
     try {
@@ -28,16 +35,59 @@ const EmailHelp = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const auth = getAuth(app);
+        const user = auth.currentUser;
+        if (user) {
+          const db = getFirestore(app);
+          const docRef = doc(db, 'users', user.uid);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            setUserData(docSnap.data());
+          } else {
+            setError('No such document!');
+          }
+        } else {
+          setError('No authenticated user found.');
+        }
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+
   return (
     <ScrollView keyboardShouldPersistTaps='always' style={styles.mainContainer}>
       <BackButton />
       <View>
-        <FText fontSize="h5" fontWeight="700" color={colours.primary} style={{ marginTop: 120, marginLeft: 30 }}>
+
+      <View style={{ flexDirection: 'row' }}>
+            <FText
+              fontSize="h5"
+              fontWeight="700"
+              color={colours.primary}
+              style={{ marginTop: 150, zIndex: -1, marginLeft: 30 }}
+            >
+              Hello {''}
+
+              {userData?.fullName}!
+            </FText>
+            <Icon2 name="hands-clapping" size={40} color='#E4D00A' style={{ marginTop: 140 }} />
+          </View>
+        <FText fontSize="h5" fontWeight="700" color={colours.primary} style={{ marginTop: 5, marginLeft: 30 }}>
           How can we help you?
         </FText>
 
         <View style={styles.inputContainer}>
-          <FText fontSize="medium" fontWeight={400} color={colours.primary} style={styles.label}>
+          <FText fontSize="small" fontWeight={400} color={colours.primary} style={styles.label}>
             Please type a message here, we will respond to your request via email within 2-3 days.
           </FText>
           <TextInput
@@ -71,7 +121,7 @@ const styles = StyleSheet.create({
     backgroundColor: colours.secondary
   },
   inputContainer: {
-    marginTop: 21,
+    marginTop: 10,
     marginLeft: 30,
     marginRight: 30,
     marginBottom: 10

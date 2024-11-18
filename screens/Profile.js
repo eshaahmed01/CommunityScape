@@ -289,7 +289,7 @@ const Profile = ({ navigation }) => {
           <FText fontSize='medium' fontWeight={700} color={colours.primary} > Help Center </FText>
          
           </View>
-          <TouchableOpacity style={{marginTop: -5, marginTop: 20}} onPress={() => navigation.navigate('FAQ')} > 
+          <TouchableOpacity style={{marginTop: -5, marginTop: 20}} onPress={() => { closeModal(); navigation.navigate('FAQ')}} > 
             <Icon name='arrowright' size={20} color={colours.primary}> </Icon>
 
           </TouchableOpacity>
@@ -309,7 +309,7 @@ const Profile = ({ navigation }) => {
             <FText fontSize='medium' fontWeight={700} color={colours.primary} > Contact Us </FText>
            
             </View>
-            <TouchableOpacity style={{marginTop: -5, marginTop: 20}} onPress={() => navigation.navigate('EmailHelp')} > 
+            <TouchableOpacity style={{marginTop: -5, marginTop: 20}} onPress={() => { closeModal(); navigation.navigate('EmailHelp')}} > 
               <Icon name='arrowright' size={20} color={colours.primary}> </Icon>
   
             </TouchableOpacity>

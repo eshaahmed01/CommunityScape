@@ -52,7 +52,7 @@ const EditProfile = () => {
       <BackButton></BackButton>
       <View style={styles.container}> 
       <View style={{position: 'relative'}}> 
-      <FText fontSize='h4' fontWeight={900} color={colours.primary} style={{marginTop: 120, marginLeft: 20}}> Edit Your Profile </FText>
+      <FText fontSize='h6' fontWeight={900} color={colours.primary} style={{marginTop: 120, marginLeft: 20}}> Edit Your Profile </FText>
       {newProfilePic ? (
           <Image source={{ uri: newProfilePic }} style={styles.profilePic} />
         ) : userData?.profilePic ? (

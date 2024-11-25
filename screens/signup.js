@@ -164,17 +164,7 @@ const closeModal = () => {
         <FText fontSize='h5' fontWeight={400} color={colours.primary} >Create your <FText fontSize='h5' fontWeight={900} color={colours.primary}>account </FText></FText>
         </View>
 
-        <TouchableOpacity onPress={handleImagePicker} style={{alignItems: 'center', justifyContent: 'center', marginTop: 30}}> 
-                <Image source={profilePic
-              ? { uri: profilePic } 
-              : require('../assets/images/Profile/upload.png')} 
-               style={ profilePic && {
-                width: 100,  // Set width
-                height: 100,  // Set height
-                borderRadius: 50,  // Make the image circular
-                resizeMode: 'cover'  // Ensure the image covers the entire area
-              }}/>
-            </TouchableOpacity>
+        
 
             { !imageAdded  && (
         <FText fontSize="medium" fontWeight={700} color="red" style={{ marginTop: 5, marginLeft: 30 }}>

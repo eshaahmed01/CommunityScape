@@ -39,7 +39,7 @@ const openModal = () => {
       tension: 20,
     }).start(() => setModalVisible(false));
 
-    navigation.navigate('InvestorProperty')
+    navigation.navigate('InvestorTab')
   
     
   };

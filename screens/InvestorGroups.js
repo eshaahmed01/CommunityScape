@@ -1,8 +1,8 @@
 import { FlatList, Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View, ScrollView, TextInput, Dimensions, Modal, Animated, Pressable, Alert, ActivityIndicator } from 'react-native'
 import { colours } from '../constants/colours'
 import FText from '../components/Ftext'
-import React, { useState, useEffect, useRef } from 'react'
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import fonts from '../constants/fonts';
 import DropDownPicker from 'react-native-dropdown-picker';
 import BackButton from '../components/BackButtons'
@@ -25,7 +25,13 @@ const InvestorGroups = () => {
   const [loaderGroupId, setLoaderGroupId] = useState(null);
   const [loader, setLoader] = useState(false);
 
-  useEffect(() => { setLoader(true); fnCallFetchGroups(); }, [currentUser]);
+  // useEffect(() => { setLoader(true); fnCallFetchGroups(); }, [currentUser]);
+  useFocusEffect(
+    useCallback(()=>{
+      setLoader(true); 
+      fnCallFetchGroups();
+    },[currentUser])
+  )
 
   const fnCallFetchGroups = () => {
     fetchGroups().then((payload) => {

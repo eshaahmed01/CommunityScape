@@ -91,10 +91,12 @@ const ListingForm = () => {
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
       // Combine the newly selected images with the existing images
-      const newImages = result.assets.map(async(image) => {
-        const imageUrl = await uploadImageToFirebase('estates/',image.uri);
-        return imageUrl
-      });
+      const newImages = await Promise.all(
+        result.assets.map(async (image) => {
+          const imageUrl = await uploadImageToFirebase('estates/', image?.uri);
+          return imageUrl;
+        })
+      );
       setPropImages(prevImages => [...prevImages, ...newImages]);
     }
   };

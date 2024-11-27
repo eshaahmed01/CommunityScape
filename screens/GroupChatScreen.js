@@ -90,7 +90,7 @@ const GroupChatScreen = () => {
                     </Text>
                 </TouchableOpacity>
             </View>
-            <ScrollView ref={scrollViewRef} keyboardShouldPersistTaps='always' contentContainerStyle={{ flex: 1 }} style={{ flex: 1, paddingHorizontal: 12, marginBottom: 10 }}>
+            <ScrollView ref={scrollViewRef} keyboardShouldPersistTaps='always' contentContainerStyle={{flexGrow : 1}}  style={{ flex: 1, paddingHorizontal: 12, marginBottom: 10 }}>
                 {loader ?
                     <View style={{ flex: 0.9, alignItems: 'center', justifyContent: 'center' }}>
                         <ActivityIndicator size={'large'} color={colours.primary} />

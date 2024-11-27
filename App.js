@@ -63,6 +63,7 @@ import InvestorTabBar from "./components/InvestorTab";
 import InvestorGroups from "./screens/InvestorGroups";
 import CreateGroup1 from "./screens/CreateGroup1";
 import CreateGroup2 from "./screens/CreateGroup2";
+import GroupDetails from "./screens/GroupDetails";
 
 LogBox.ignoreLogs(["Warning: ..."]);
 LogBox.ignoreAllLogs();
@@ -397,6 +398,12 @@ function App() {
        <Stack.Screen
           name="CreateGroup2"
           component={CreateGroup2}
+          options={{ headerShown: false }}
+        />   
+
+       <Stack.Screen
+          name="GroupDetails"
+          component={GroupDetails}
           options={{ headerShown: false }}
         />   
 

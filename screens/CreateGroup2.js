@@ -18,6 +18,7 @@ import { Ionicons } from 'react-native-vector-icons';
 
 
 const CreateGroup2 = () => {
+  const navigation = useNavigation();
 
     const [groupName, setGroupName] = useState('');
     const [profilePic, setProfilePic] = useState(null);
@@ -107,7 +108,7 @@ const CreateGroup2 = () => {
           ))}
           </View>
 
-          <TouchableOpacity style={styles.button} >
+          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('GroupDetails')} >
           <FText fontSize="small" fontWeight={700} color={colours.white}>
             Create
           </FText>

@@ -19,6 +19,7 @@ import { db } from '../firebaseconfig';
 import firebase from 'firebase/compat/app';
 import useUserManager from '../hooks/useUserManager';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { getDownloadURL, getStorage } from 'firebase/storage';
 
 
 const CreateGroup2 = () => {

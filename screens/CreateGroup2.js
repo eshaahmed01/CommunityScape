@@ -42,17 +42,34 @@ const CreateGroup2 = () => {
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
-        aspect: [4, 3],
         quality: 1,
       });
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const selectedImage = result.assets[0];
-        setGroupImage(selectedImage.uri);
+        const imageUrl = await uploadImageToFirebase(selectedImage.uri);
+        setGroupImage(imageUrl);
       }
     } catch (error) {
       console.error("Error picking image:", error);
       alert("Failed to pick an image. Please try again.");
+    }
+  };
+
+  const uploadImageToFirebase = async (imageUri) => {
+    try {
+      const storage = getStorage();
+      const response = await fetch(imageUri); 
+      const blob = await response.blob(); 
+  
+      const storageRef = ref(storage, `groupImages/${Date.now()}.jpg`); 
+      await uploadBytes(storageRef, blob); 
+  
+      const downloadURL = await getDownloadURL(storageRef); 
+      return downloadURL;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      throw error;
     }
   };
 

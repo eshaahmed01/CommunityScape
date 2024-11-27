@@ -64,6 +64,7 @@ import InvestorGroups from "./screens/InvestorGroups";
 import CreateGroup1 from "./screens/CreateGroup1";
 import CreateGroup2 from "./screens/CreateGroup2";
 import GroupDetails from "./screens/GroupDetails";
+import GroupChatScreen from "./screens/GroupChatScreen";
 
 LogBox.ignoreLogs(["Warning: ..."]);
 LogBox.ignoreAllLogs();
@@ -120,42 +121,42 @@ const DrawerTabs = () => (
       drawerItemStyle: { paddingVertical: 0, marginBottom: "1%", marginLeft: "1%" },
     }}
   >
-    
-    <Drawer.Screen 
-      name="Home" 
-      component={Homescreen} 
+
+    <Drawer.Screen
+      name="Home"
+      component={Homescreen}
       options={{
         drawerIcon: () => <Icon2 name="home" size={22} color={colours.primary} />,
-      }} 
-    />
-   
-    <Drawer.Screen 
-      name="Architect Profile" 
-      component={ArchitectProfile} 
-      options={{
-        drawerIcon: () => 
-          <Icon name="person" size={22} color={colours.primary} />,
-         
-      }} 
-    />
-     <Drawer.Screen 
-      name="Favourites" 
-      component={Favourites} 
-      options={{
-        drawerIcon: () => 
-          <Icon3 name="heart" size={22} color={colours.primary} />,
-         
-      }} 
+      }}
     />
 
-     <Drawer.Screen 
-      name="Survey" 
-      component={Survey} 
+    <Drawer.Screen
+      name="Architect Profile"
+      component={ArchitectProfile}
       options={{
-        drawerIcon: () => 
+        drawerIcon: () =>
+          <Icon name="person" size={22} color={colours.primary} />,
+
+      }}
+    />
+    <Drawer.Screen
+      name="Favourites"
+      component={Favourites}
+      options={{
+        drawerIcon: () =>
+          <Icon3 name="heart" size={22} color={colours.primary} />,
+
+      }}
+    />
+
+    <Drawer.Screen
+      name="Survey"
+      component={Survey}
+      options={{
+        drawerIcon: () =>
           <Icon4 name="questioncircle" size={22} color={colours.primary} />,
-         
-      }} 
+
+      }}
     />
 
 
@@ -172,42 +173,42 @@ const InvestorDrawer = () => (
       drawerItemStyle: { paddingVertical: 0, marginBottom: "1%", marginLeft: "1%" },
     }}
   >
-    
-    <Drawer.Screen 
-      name="Investor Property" 
-      component={InvestorProperty} 
+
+    <Drawer.Screen
+      name="Investor Property"
+      component={InvestorProperty}
       options={{
         drawerIcon: () => <Icon2 name="home" size={22} color={colours.primary} />,
-      }} 
-    />
-   
-    <Drawer.Screen 
-      name="Architect Profile" 
-      component={ArchitectProfile} 
-      options={{
-        drawerIcon: () => 
-          <Icon name="person" size={22} color={colours.primary} />,
-         
-      }} 
-    />
-     <Drawer.Screen 
-      name="Favourites" 
-      component={Favourites} 
-      options={{
-        drawerIcon: () => 
-          <Icon3 name="heart" size={22} color={colours.primary} />,
-         
-      }} 
+      }}
     />
 
-     <Drawer.Screen 
-      name="Survey" 
-      component={Survey} 
+    <Drawer.Screen
+      name="Architect Profile"
+      component={ArchitectProfile}
       options={{
-        drawerIcon: () => 
+        drawerIcon: () =>
+          <Icon name="person" size={22} color={colours.primary} />,
+
+      }}
+    />
+    <Drawer.Screen
+      name="Favourites"
+      component={Favourites}
+      options={{
+        drawerIcon: () =>
+          <Icon3 name="heart" size={22} color={colours.primary} />,
+
+      }}
+    />
+
+    <Drawer.Screen
+      name="Survey"
+      component={Survey}
+      options={{
+        drawerIcon: () =>
           <Icon4 name="questioncircle" size={22} color={colours.primary} />,
-         
-      }} 
+
+      }}
     />
 
 
@@ -268,12 +269,12 @@ function App() {
           options={{ headerShown: false }}
         />
 
-      <Stack.Screen
+        <Stack.Screen
           name="EditProfile"
           component={EditProfile}
           options={{ headerShown: false }}
         />
-        
+
         <Stack.Screen
           name="ListingForm2"
           component={ListingForm2}
@@ -286,7 +287,7 @@ function App() {
           options={{ headerShown: false }}
         />
 
-      <Stack.Screen
+        <Stack.Screen
           name="FAQ"
           component={FAQ}
           options={{ headerShown: false }}
@@ -368,13 +369,13 @@ function App() {
         <Stack.Screen
           name="InvestorProfile"
           component={InvestorProfile}
-         
+
         />
 
-      <Stack.Screen
+        <Stack.Screen
           name="Investor"
           component={Investor}
-         
+
         />
 
         <Stack.Screen
@@ -383,7 +384,7 @@ function App() {
           options={{ headerShown: false }}
         />
 
-       <Stack.Screen
+        <Stack.Screen
           name="InvestorGroups"
           component={InvestorGroups}
           options={{ headerShown: false }}
@@ -395,23 +396,24 @@ function App() {
           options={{ headerShown: false }}
         />
 
-       <Stack.Screen
+        <Stack.Screen
           name="CreateGroup2"
           component={CreateGroup2}
           options={{ headerShown: false }}
-        />   
+        />
 
-       <Stack.Screen
+        <Stack.Screen
           name="GroupDetails"
           component={GroupDetails}
           options={{ headerShown: false }}
-        />   
+        />
 
 
-       
-
-
-
+        <Stack.Screen
+          name="GroupChatScreen"
+          component={GroupChatScreen}
+          options={{ headerShown: false }}
+        />
 
         <Stack.Screen
           name="ReviewsDetail"
@@ -419,10 +421,10 @@ function App() {
 
         />
 
-       <Stack.Screen
+        <Stack.Screen
           name="EmailHelp"
           component={EmailHelp}
-          
+
         />
         <Stack.Screen name="TopLocations" component={TopLocations} />
         <Stack.Screen name="LocationDetails" component={LocationDetails} />

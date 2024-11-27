@@ -14,11 +14,15 @@ import Icons from 'react-native-vector-icons/AntDesign';
 import React, { useState, useEffect } from 'react'
 import { collection, doc, getDoc, getDocs, limit, query } from 'firebase/firestore'
 import { db } from '../firebaseconfig'
+import useImageHandler from '../hooks/useImageHandler'
 
 const ListingForm = () => {
 
   const navigation = useNavigation();
   const route = useRoute();
+
+  const { uploadImageToFirebase } = useImageHandler();
+
   const [open, setOpen] = useState(false);
   const [propertyType, setPropertyType] = useState(null);
   const [propImages, setPropImages] = useState([]);
@@ -87,7 +91,10 @@ const ListingForm = () => {
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
       // Combine the newly selected images with the existing images
-      const newImages = result.assets.map(image => image.uri);
+      const newImages = result.assets.map(async(image) => {
+        const imageUrl = await uploadImageToFirebase('estates/',image.uri);
+        return imageUrl
+      });
       setPropImages(prevImages => [...prevImages, ...newImages]);
     }
   };

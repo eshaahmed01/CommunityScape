@@ -16,6 +16,7 @@ import fonts from '../constants/fonts';
 
 
 export default function SignUp() {
+  const ImgPath = "../assets/images/Profile/";
   const navigation = useNavigation();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -44,10 +45,10 @@ export default function SignUp() {
       console.log("Image selected:", uri); // Debug: Check if an image is selected
       setProfilePic(uri);
       setImageAdded(true); // Show popup for successful image addition
-      setTimeout(() => setImageAdded(false), 3000); // Hide popup after 3 seconds
+      // setTimeout(() => setImageAdded(false), 3000); // Hide popup after 3 seconds
 
       try {
-        // Convert image to base64
+        // Convert image to base64s
         const base64Data = await FileSystem.readAsStringAsync(uri, {
           encoding: FileSystem.EncodingType.Base64,
         });
@@ -106,9 +107,9 @@ const closeModal = () => {
       setError('Invalid Password');
       return;
     }
-    if (!imageAdded) {
-      return;
-    }
+    // if (!imageAdded) {
+    //   return;
+    // }
     
 
     setError(null);
@@ -163,6 +164,21 @@ const closeModal = () => {
         <View  style={{marginLeft: 20}}> 
         <FText fontSize='h5' fontWeight={400} color={colours.primary} >Create your <FText fontSize='h5' fontWeight={900} color={colours.primary}>account </FText></FText>
         </View>
+
+        <TouchableOpacity style = {{alignItems: 'center', justifyContent: 'center', marginTop: 20}} onPress={handleImagePicker} > 
+        <Image source={profilePic
+              ? { uri: profilePic } 
+              :  require('../assets/images/Profile/upload.png') } 
+               style={ profilePic && {
+                width: 70,  // Set width
+                height: 70,  // Set height
+                borderRadius: 35,  // Make the image circular
+                resizeMode: 'cover'  // Ensure the image covers the entire area
+              } 
+              }/>
+                </TouchableOpacity>
+
+
 
         
 

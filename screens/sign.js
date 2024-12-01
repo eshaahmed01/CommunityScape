@@ -32,7 +32,7 @@ const Sign = () => {
       <View style={styles.socialButtonsContainer}>
 
       </View>
-      <TouchableOpacity onPress={() => navigation.navigate('Role')}>
+      <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
         <Text style={styles.registerText}>Don't have an account? Register</Text>
       </TouchableOpacity>
 

@@ -58,7 +58,7 @@ const FText = ({
   };
 
   return (
-    <Text style={[styles.base, textStyles, style]} {...restProps}>
+    <Text allowFontScaling={false} style={[styles.base, textStyles, style]} {...restProps}>
       {children}
     </Text>
   );

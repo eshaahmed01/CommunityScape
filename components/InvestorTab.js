@@ -4,16 +4,15 @@ import { colours } from '../constants/colours';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Icon2 from 'react-native-vector-icons/FontAwesome5';
 import Icon3 from 'react-native-vector-icons/MaterialIcons';
-import Icon4 from 'react-native-vector-icons/Entypo'
-import Icon5 from 'react-native-vector-icons/FontAwesome'
-import FontAwesome6 from 'react-native-vector-icons/FontAwesome6'
-
-
+import Icon4 from 'react-native-vector-icons/Entypo';
+import Icon5 from 'react-native-vector-icons/FontAwesome';
+import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 // Define the icon components
 const HomeIcon = (props) => <Icon4 name="home" size={30} color={props.color} />;
 const SearchIcon = (props) => <FontAwesome6 name="user-group" size={25} color={props.color} />;
-const AdIcon = (props) => <Icon5 name="th-large" size={30} color={props.color} />;
+const PostIcon = (props) => <MaterialIcons name="create" size={30} color={props.color} />;
 const ProfileIcon = (props) => <Icon5 name="user" size={30} color={props.color} />;
 
 const tabBarData = [
@@ -28,9 +27,9 @@ const tabBarData = [
     routeName: 'InvestorGroups'
   },
   {
-    name: 'Ads',
-    icon: AdIcon,
-    routeName: 'Ads',
+    name: 'Posts',
+    icon: PostIcon,
+    routeName: 'Posts',
   },
   {
     name: 'Profile',

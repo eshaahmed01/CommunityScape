@@ -5,15 +5,20 @@ import { Rating } from 'react-native-ratings';
 import BackButton from '../components/BackButtons';
 import FText from '../components/Ftext';
 import { db } from "../firebaseconfig";
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, serverTimestamp, setDoc } from "firebase/firestore";
 import HorizontalImageCarousel from '../components/HorizontalImageCarousel';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { app } from '../firebaseconfig'; // Adjust the path as necessary
 import fonts from '../constants/fonts';
+import useUserManager from '../hooks/useUserManager';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import LottieView from 'lottie-react-native';
 
 
 const PropertyDetail = ({ route, navigation }) => {
+
+    const { currentUser } = useUserManager();
 
     const [estates, setEstates] = useState([]);
     const [estateDetails, setEstateDetails] = useState({});
@@ -25,6 +30,9 @@ const PropertyDetail = ({ route, navigation }) => {
     const [sellerEmail, setSellerEmail] = useState(null);
     const [sellerMessage, setSellerMessage] = useState(null);
     const [loader, setLoader] = useState(false);
+    const [isFavorite, setIsFavorite] = useState(false);
+
+    const [favoriteLoader, setFavoriteLoader] = useState(false);
 
     const handleSellerForm = async () => {
         try {
@@ -77,9 +85,6 @@ const PropertyDetail = ({ route, navigation }) => {
 
     const [userData, setUserData] = useState(null);
     const { id, location, name } = route.params;
-    console.log("Hello");
-    console.log(location);
-    console.log(name, id);
 
     // Function to fetch estate details based on estate ID
     const fetchEstateDetails = async (estateId: string, db: any) => {
@@ -219,19 +224,64 @@ const PropertyDetail = ({ route, navigation }) => {
         fetchReviews(id);
     };
 
+    const fnToggleFavorite = async (estateId) => {
+        try {
+            const favoriteRef = doc(db, "users", currentUser?.id, "favorites", estateId);
+
+            const favoriteSnap = await getDoc(favoriteRef);
+
+            if (favoriteSnap.exists()) {
+                await deleteDoc(favoriteRef);
+                return "Removed from favorites"
+            } else {
+                await setDoc(favoriteRef, {
+                    estateId,
+                    timestamp: new Date(),
+                });
+                return "Added to favorites"
+            }
+        } catch (error) {
+            console.error("Error toggling favorite: ", error);
+        }
+    };
+
     useEffect(() => {
         fetchDocuments(location, db, fetchEstateDetails, setEstates, setEstateDetails);
         fetchReviews(id);
     }, [location]);
 
-    const handleFavourites = () => {
-        setFavModalVisible(true);
+    useEffect(() => { checkFavoriteStatus(); }, [currentUser?.id, id]);
 
-        setTimeout(() => {
-            setFavModalVisible(false);
-        }, 1000);
-        navigation.navigate('Favourites', location);
-    }
+    const checkFavoriteStatus = async () => {
+        const favoriteStatus = await isEstateInFavorites();
+        setIsFavorite(favoriteStatus);
+    };
+
+    const handleFavourites = async () => {
+        try {
+            setFavoriteLoader(true);
+            await fnToggleFavorite(id);
+            await checkFavoriteStatus();
+        } catch (error) {
+            console.log(error)
+        } finally {
+            setFavoriteLoader(false);
+        }
+    };
+
+    const isEstateInFavorites = async () => {
+        if (currentUser?.id) {
+            try {
+                const favoriteRef = doc(db, "users", currentUser?.id, "favorites", id);
+                const favoriteSnap = await getDoc(favoriteRef);
+
+                return favoriteSnap.exists();
+            } catch (error) {
+                console.error("Error checking favorite status: ", error);
+                return false;
+            }
+        }
+    };
 
     const handleContactSeller = () => {
         setContactModalVisible(true);
@@ -293,253 +343,258 @@ const PropertyDetail = ({ route, navigation }) => {
     }
 
     return (
+        <>
+            <SafeAreaView style={styles.mainContainer}>
+                {estates.length > 0 && (
+                    <ScrollView showsVerticalScrollIndicator={false}>
+                        <View style={styles.mainContainer}>
+                            <BackButton />
+                            <View style={styles.bgImageContainer}>
+                                <HorizontalImageCarousel images={ExtractImage()} />
 
-        <SafeAreaView style={styles.mainContainer}>
-            {estates.length > 0 && (
-                <ScrollView showsVerticalScrollIndicator={false}>
-                    <View style={styles.mainContainer}>
-                        <BackButton />
-                        <View style={styles.bgImageContainer}>
-                            <HorizontalImageCarousel images={ExtractImage()} />
+                                <TouchableOpacity style={[styles.heartBtn, isFavorite && { backgroundColor: colours.primary }]} onPress={handleFavourites}>
+                                    <AntDesign name='heart' size={18} color={'white'} />
+                                </TouchableOpacity>
 
-                            <TouchableOpacity style={styles.heartBtn} onPress={handleFavourites}>
-                                <Image source={Images.heart} style={{ width: 40, height: 40 }} />
-                            </TouchableOpacity>
+                                <View style={styles.rowViewBgImg}>
 
-                            <View style={styles.rowViewBgImg}>
-
-                                <View style={styles.tagView}>
-                                    <Image source={Images.star} style={{ width: 20, height: 20 }} />
-                                    <FText style={styles.bodyText} fontSize='normal' fontWeight='400' color={colours.white}>{estates[0].Rating}</FText>
-                                </View>
-                                <View style={{ ...styles.tagView, marginLeft: 10, width: 90 }}>
-                                    <FText style={styles.bodyText} fontSize='normal' fontWeight='400' color={colours.white}>{estates[0].Type}</FText>
+                                    <View style={styles.tagView}>
+                                        <Image source={Images.star} style={{ width: 20, height: 20 }} />
+                                        <FText style={styles.bodyText} fontSize='normal' fontWeight='400' color={colours.white}>{estates[0].Rating}</FText>
+                                    </View>
+                                    <View style={{ ...styles.tagView, marginLeft: 10, width: 90 }}>
+                                        <FText style={styles.bodyText} fontSize='normal' fontWeight='400' color={colours.white}>{estates[0].Type}</FText>
+                                    </View>
                                 </View>
                             </View>
-                        </View>
-                        {/* <EstateDetails estateDetails={estateDetails} /> */}
-                        <View style={styles.headingView}>
-                            {estates[0].Type === "Apartment" ? (<FText style={styles.headingText} fontSize='h5' fontWeight='900' color={colours.primary}>{remainingText}{'\n'}{lastWord}</FText>)
-                                :
-                                (<FText style={styles.headingText} fontSize='h5' fontWeight='900' color={colours.primary}>{estates[0].Name}</FText>)}
-                            <FText style={styles.headingText} fontSize='h5' fontWeight='900' color={colours.primary}>${estates[0].Price.toLocaleString()}{" "}</FText>
-                        </View>
-                        <View style={{ flexDirection: 'row', paddingHorizontal: 20, marginTop: 10 }}>
-                            <Image source={Images.location} style={{ width: 20, height: 20 }} resizeMode='contain' />
-                            <FText style={{ ...styles.bodyText, color: '#53587A', marginLeft: 5 }} fontSize='normal' fontWeight='400' color={colours.typography_60}>{formatState(estates[0].State)}</FText>
-                        </View>
+                            {/* <EstateDetails estateDetails={estateDetails} /> */}
+                            <View style={styles.headingView}>
+                                {estates[0].Type === "Apartment" ? (<FText style={styles.headingText} fontSize='h5' fontWeight='900' color={colours.primary}>{remainingText}{'\n'}{lastWord}</FText>)
+                                    :
+                                    (<FText style={styles.headingText} fontSize='h5' fontWeight='900' color={colours.primary}>{estates[0].Name}</FText>)}
+                                <FText style={styles.headingText} fontSize='h5' fontWeight='900' color={colours.primary}>${estates[0].Price.toLocaleString()}{" "}</FText>
+                            </View>
+                            <View style={{ flexDirection: 'row', paddingHorizontal: 20, marginTop: 10 }}>
+                                <Image source={Images.location} style={{ width: 20, height: 20 }} resizeMode='contain' />
+                                <FText style={{ ...styles.bodyText, color: '#53587A', marginLeft: 5 }} fontSize='normal' fontWeight='400' color={colours.typography_60}>{formatState(estates[0].State)}</FText>
+                            </View>
 
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }} >
-                            <FText style={{ paddingHorizontal: '5%', marginTop: 40 }} fontSize='h6' fontWeight='700' color={colours.primary}>Listed By</FText>
-                            {estates[0].ListingType === "SellerListing" && (
-                                <TouchableOpacity
-                                    onPress={() => setContactModalVisible(true)}
-                                    style={{ marginLeft: 10, marginRight: 20, backgroundColor: colours.primary, paddingHorizontal: 10, paddingVertical: 10, borderRadius: 10, marginTop: 40 }}
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }} >
+                                <FText style={{ paddingHorizontal: '5%', marginTop: 40 }} fontSize='h6' fontWeight='700' color={colours.primary}>Listed By</FText>
+                                {estates[0].ListingType === "SellerListing" && (
+                                    <TouchableOpacity
+                                        onPress={() => setContactModalVisible(true)}
+                                        style={{ marginLeft: 10, marginRight: 20, backgroundColor: colours.primary, paddingHorizontal: 10, paddingVertical: 10, borderRadius: 10, marginTop: 40 }}
+                                    >
+                                        <FText fontSize='small' fontWeight={400} color={colours.white}>Contact Seller</FText>
+                                    </TouchableOpacity>
+                                )}
+
+                                <Modal
+                                    animationType="slide"
+                                    transparent={true}
+                                    visible={contactModalVisible}
+                                    onRequestClose={() => {
+                                        setContactModalVisible(!contactModalVisible);
+                                    }}
                                 >
-                                    <FText fontSize='small' fontWeight={400} color={colours.white}>Contact Seller</FText>
-                                </TouchableOpacity>
-                            )}
+                                    <View style={styles.modalOverlay}>
+                                        <View style={styles.modalView}>
+                                            <FText fontSize='large' fontWeight={700} color={colours.primary}> Seller Contact form </FText>
+                                            <View style={styles.inputContainer}>
+                                                <FText fontSize="large" fontWeight={700} color={colours.primary} style={styles.label}>
+                                                    Name:
+                                                </FText>
+                                                <TextInput
+                                                    style={styles.input}
+                                                    placeholder="Enter complete address"
+                                                    placeholderTextColor={"#A1A5C1"}
+                                                    onChangeText={setSellerName}
+                                                    value={sellerName}
+                                                />
+                                            </View>
+
+                                            <View style={styles.inputContainer}>
+                                                <FText fontSize="large" fontWeight={700} color={colours.primary} style={styles.label}>
+                                                    Phone:
+                                                </FText>
+                                                <TextInput
+                                                    style={styles.input}
+                                                    placeholder="Enter complete address"
+                                                    placeholderTextColor={"#A1A5C1"}
+                                                    onChangeText={setSellerPhone}
+                                                    value={sellerPhone}
+                                                />
+                                            </View>
+
+                                            <View style={styles.inputContainer}>
+                                                <FText fontSize="large" fontWeight={700} color={colours.primary} style={styles.label}>
+                                                    Email:
+                                                </FText>
+                                                <TextInput
+                                                    style={styles.input}
+                                                    placeholder="Enter complete address"
+                                                    placeholderTextColor={"#A1A5C1"}
+                                                    onChangeText={setSellerEmail}
+                                                    value={sellerEmail}
+                                                />
+                                            </View>
+
+                                            <View style={styles.inputContainer}>
+                                                <FText fontSize="large" fontWeight={700} color={colours.primary} style={styles.label}>
+                                                    Message:
+                                                </FText>
+                                                <TextInput
+                                                    style={[styles.input, styles.textArea]}
+                                                    placeholder="Enter your message"
+                                                    multiline
+                                                    numberOfLines={2}
+                                                    placeholderTextColor={"#A1A5C1"}
+                                                    onChangeText={setSellerMessage}
+                                                    value={sellerMessage}
+                                                />
+                                            </View>
+
+                                            <TouchableOpacity disabled={loader} style={{ backgroundColor: '#8BC83F', borderRadius: 10, marginHorizontal: 20, marginTop: 10, alignItems: 'center', width: '60%', height: 46, justifyContent: 'center', alignSelf: 'center', marginBottom: 10 }} onPress={handleSellerForm}>
+                                                {
+                                                    loader ? <ActivityIndicator color={colours.white} />
+                                                        : <FText fontSize='small' fontWeight='400' color={colours.white}>Send</FText>
+                                                }
+                                            </TouchableOpacity>
+
+
+                                        </View>
+                                    </View>
+                                </Modal>
+
+                            </View>
+
+                            <View style={styles.clientView}>
+                                <Image source={{ uri: estateDataObj[0]?.ListerImage }} style={{ width: 50, height: 50, borderRadius: 50 }} />
+                                <View style={{ marginLeft: 10 }}>
+                                    <FText color={colours.primary} fontSize='large' fontWeight='700'>{estateDataObj[0]?.ListerName}</FText>
+                                    <FText color={colours.typography_60} fontSize='normal' fontWeight='400' >Phone: {estateDataObj[0]?.ListerPhone}</FText>
+                                </View>
+                            </View>
+                            <View style={{ marginTop: 20 }}>
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                    {ExtractAmenities()?.map((item, index) => (
+                                        <View key={index} style={styles.btnPropertyStyle}>
+                                            <FText color={colours.typography_60} fontSize='normal' fontWeight='400'>{item}</FText>
+                                        </View>
+                                    ))}
+                                </ScrollView>
+                            </View>
+
+                            <FText style={{ paddingHorizontal: '5%', marginTop: 40 }} fontSize='h6' fontWeight='700' color={colours.primary}>Location & Public Facilities</FText>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, paddingHorizontal: '5%' }}>
+                                <Image source={Images.locationBg} style={{ width: 50, height: 50 }} />
+                                <FText style={{ paddingHorizontal: '2%' }} fontSize='normal' fontWeight='400' color={colours.typography_60}>{estates[0].Location}, {estates[0].State}</FText>
+                            </View>
+                            <View style={{ marginTop: 20 }}>
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                    {ExtractDescription()?.map((item, index) => (
+                                        <View key={index} style={styles.btnPropertyStyle}>
+                                            <FText fontSize='normal' fontWeight='400' color={colours.typography_60}>{item}</FText>
+                                        </View>
+                                    ))}
+                                </ScrollView>
+                            </View>
+                            <View style={{ marginTop: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20 }}>
+                                <FText fontSize='h6' fontWeight='700' color={colours.primary}>Cost of Rent</FText>
+
+                            </View>
+                            <View style={{ ...styles.clientView, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center' }}>
+                                <FText fontSize='large' fontWeight='700' color={colours.typography_60} >$830/<FText fontSize='large' fontWeight='700' color={colours.typography_60}>month*</FText></FText>
+                                <FText fontSize='small' fontWeight='400' color={colours.typography_60}>Contact listers for negotiation</FText>
+                            </View>
+                            <FText fontSize='h6' fontWeight='700' color={colours.primary} style={{ marginLeft: 20, marginTop: 20 }}>Reviews</FText>
+                            {reviews.slice(0, 2).map(review => (
+                                <ReviewCard
+                                    key={review.id}
+                                    name={review.userId}
+                                    image={review.userImage}
+                                    rating={review.rating}
+                                    review={review.desc}
+                                    date={new Date(review.createdAt).toLocaleString()}
+                                />
+                            ))}
+                            <TouchableOpacity style={{ backgroundColor: '#F5F4F8', paddingVertical: 20, borderRadius: 10, marginHorizontal: 20, marginTop: 20, alignItems: 'center' }} onPress={() => navigation.navigate('ReviewsDetail', { reviews })}>
+                                <FText fontSize='large' fontWeight='700' color={colours.primary}>View all reviews</FText>
+                            </TouchableOpacity>
+                            <FText fontSize='h6' fontWeight='700' color={colours.primary} style={{ marginLeft: 20, marginTop: 20 }} >Add your review</FText>
+                            <TextInput
+                                placeholder="Write your review here..."
+                                placeholderTextColor={colours.waterloo}
+                                style={{ backgroundColor: '#F5F4F8', padding: 10, borderRadius: 10, marginHorizontal: 20, marginTop: 10, textAlignVertical: 'top' }}
+                                multiline
+                                numberOfLines={6}
+                                value={reviewInput}
+                                onChangeText={text => setReviewInput(text)}
+                            />
 
                             <Modal
                                 animationType="slide"
                                 transparent={true}
-                                visible={contactModalVisible}
+                                visible={modalVisible}
                                 onRequestClose={() => {
-                                    setContactModalVisible(!contactModalVisible);
+                                    setModalVisible(!modalVisible);
                                 }}
                             >
                                 <View style={styles.modalOverlay}>
                                     <View style={styles.modalView}>
-                                        <FText fontSize='large' fontWeight={700} color={colours.primary}> Seller Contact form </FText>
-                                        <View style={styles.inputContainer}>
-                                            <FText fontSize="large" fontWeight={700} color={colours.primary} style={styles.label}>
-                                                Name:
-                                            </FText>
-                                            <TextInput
-                                                style={styles.input}
-                                                placeholder="Enter complete address"
-                                                placeholderTextColor={"#A1A5C1"}
-                                                onChangeText={setSellerName}
-                                                value={sellerName}
-                                            />
-                                        </View>
-
-                                        <View style={styles.inputContainer}>
-                                            <FText fontSize="large" fontWeight={700} color={colours.primary} style={styles.label}>
-                                                Phone:
-                                            </FText>
-                                            <TextInput
-                                                style={styles.input}
-                                                placeholder="Enter complete address"
-                                                placeholderTextColor={"#A1A5C1"}
-                                                onChangeText={setSellerPhone}
-                                                value={sellerPhone}
-                                            />
-                                        </View>
-
-                                        <View style={styles.inputContainer}>
-                                            <FText fontSize="large" fontWeight={700} color={colours.primary} style={styles.label}>
-                                                Email:
-                                            </FText>
-                                            <TextInput
-                                                style={styles.input}
-                                                placeholder="Enter complete address"
-                                                placeholderTextColor={"#A1A5C1"}
-                                                onChangeText={setSellerEmail}
-                                                value={sellerEmail}
-                                            />
-                                        </View>
-
-                                        <View style={styles.inputContainer}>
-                                            <FText fontSize="large" fontWeight={700} color={colours.primary} style={styles.label}>
-                                                Message:
-                                            </FText>
-                                            <TextInput
-                                                style={[styles.input, styles.textArea]}
-                                                placeholder="Enter your message"
-                                                multiline
-                                                numberOfLines={2}
-                                                placeholderTextColor={"#A1A5C1"}
-                                                onChangeText={setSellerMessage}
-                                                value={sellerMessage}
-                                            />
-                                        </View>
-
-                                        <TouchableOpacity disabled={loader} style={{ backgroundColor: '#8BC83F', borderRadius: 10, marginHorizontal: 20, marginTop: 10, alignItems: 'center', width: '60%', height: 46, justifyContent: 'center', alignSelf: 'center', marginBottom: 10 }} onPress={handleSellerForm}>
-                                            {
-                                                loader ? <ActivityIndicator color={colours.white} />
-                                                    : <FText fontSize='small' fontWeight='400' color={colours.white}>Send</FText>
-                                            }
-                                        </TouchableOpacity>
-
+                                        <FText fontSize='large' fontWeight='400' color={colours.typography_60}>Review Added!</FText>
 
                                     </View>
                                 </View>
                             </Modal>
 
-                        </View>
-
-                        <View style={styles.clientView}>
-                            <Image source={{ uri: estateDataObj[0]?.ListerImage }} style={{ width: 50, height: 50, borderRadius: 50 }} />
-                            <View style={{ marginLeft: 10 }}>
-                                <FText color={colours.primary} fontSize='large' fontWeight='700'>{estateDataObj[0]?.ListerName}</FText>
-                                <FText color={colours.typography_60} fontSize='normal' fontWeight='400' >Phone: {estateDataObj[0]?.ListerPhone}</FText>
-                            </View>
-                        </View>
-                        <View style={{ marginTop: 20 }}>
-                            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                {ExtractAmenities()?.map((item, index) => (
-                                    <View key={index} style={styles.btnPropertyStyle}>
-                                        <FText color={colours.typography_60} fontSize='normal' fontWeight='400'>{item}</FText>
+                            {/* popup when favourite button is pressed */}
+                            <Modal
+                                animationType="slide"
+                                transparent={true}
+                                visible={favModalVisible}
+                                onRequestClose={() => {
+                                    setFavModalVisible(!favModalVisible);
+                                }}
+                            >
+                                <View style={styles.modalOverlay}>
+                                    <View style={styles.modalView}>
+                                        <FText fontSize="large" fontWeight="400" color={colours.typography_60}>
+                                            Added to Favorites!
+                                        </FText>
                                     </View>
-                                ))}
-                            </ScrollView>
-                        </View>
+                                </View>
+                            </Modal>
 
-                        <FText style={{ paddingHorizontal: '5%', marginTop: 40 }} fontSize='h6' fontWeight='700' color={colours.primary}>Location & Public Facilities</FText>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, paddingHorizontal: '5%' }}>
-                            <Image source={Images.locationBg} style={{ width: 50, height: 50 }} />
-                            <FText style={{ paddingHorizontal: '2%' }} fontSize='normal' fontWeight='400' color={colours.typography_60}>{estates[0].Location}, {estates[0].State}</FText>
-                        </View>
-                        <View style={{ marginTop: 20 }}>
-                            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                {ExtractDescription()?.map((item, index) => (
-                                    <View key={index} style={styles.btnPropertyStyle}>
-                                        <FText fontSize='normal' fontWeight='400' color={colours.typography_60}>{item}</FText>
-                                    </View>
-                                ))}
-                            </ScrollView>
-                        </View>
-                        <View style={{ marginTop: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20 }}>
-                            <FText fontSize='h6' fontWeight='700' color={colours.primary}>Cost of Rent</FText>
 
-                        </View>
-                        <View style={{ ...styles.clientView, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center' }}>
-                            <FText fontSize='large' fontWeight='700' color={colours.typography_60} >$830/<FText fontSize='large' fontWeight='700' color={colours.typography_60}>month*</FText></FText>
-                            <FText fontSize='small' fontWeight='400' color={colours.typography_60}>Contact listers for negotiation</FText>
-                        </View>
-                        <FText fontSize='h6' fontWeight='700' color={colours.primary} style={{ marginLeft: 20, marginTop: 20 }}>Reviews</FText>
-                        {reviews.slice(0, 2).map(review => (
-                            <ReviewCard
-                                key={review.id}
-                                name={review.userId}
-                                image={review.userImage}
-                                rating={review.rating}
-                                review={review.desc}
-                                date={new Date(review.createdAt).toLocaleString()}
+                            <FText style={{ paddingHorizontal: 20, marginTop: 20, marginBottom: 20 }} fontSize='h6' fontWeight='700' color={colours.primary} >Rate this Property</FText>
+                            <Rating
+                                type='custom'
+                                ratingCount={5}
+                                imageSize={30}
+                                ratingColor='#FDB54A'
+                                startingValue={rating}
+                                ratingBackgroundColor='#c8c7c8'
+                                style={{ paddingVertical: 10, alignSelf: 'center' }}
+                                onFinishRating={rating => setRating(rating)}
                             />
-                        ))}
-                        <TouchableOpacity style={{ backgroundColor: '#F5F4F8', paddingVertical: 20, borderRadius: 10, marginHorizontal: 20, marginTop: 20, alignItems: 'center' }} onPress={() => navigation.navigate('ReviewsDetail', { reviews })}>
-                            <FText fontSize='large' fontWeight='700' color={colours.primary}>View all reviews</FText>
-                        </TouchableOpacity>
-                        <FText fontSize='h6' fontWeight='700' color={colours.primary} style={{ marginLeft: 20, marginTop: 20 }} >Add your review</FText>
-                        <TextInput
-                            placeholder="Write your review here..."
-                            placeholderTextColor={colours.waterloo}
-                            style={{ backgroundColor: '#F5F4F8', padding: 10, borderRadius: 10, marginHorizontal: 20, marginTop: 10, textAlignVertical: 'top' }}
-                            multiline
-                            numberOfLines={6}
-                            value={reviewInput}
-                            onChangeText={text => setReviewInput(text)}
-                        />
-
-                        <Modal
-                            animationType="slide"
-                            transparent={true}
-                            visible={modalVisible}
-                            onRequestClose={() => {
-                                setModalVisible(!modalVisible);
-                            }}
-                        >
-                            <View style={styles.modalOverlay}>
-                                <View style={styles.modalView}>
-                                    <FText fontSize='large' fontWeight='400' color={colours.typography_60}>Review Added!</FText>
-
-                                </View>
-                            </View>
-                        </Modal>
-
-                        {/* popup when favourite button is pressed */}
-                        <Modal
-                            animationType="slide"
-                            transparent={true}
-                            visible={favModalVisible}
-                            onRequestClose={() => {
-                                setFavModalVisible(!favModalVisible);
-                            }}
-                        >
-                            <View style={styles.modalOverlay}>
-                                <View style={styles.modalView}>
-                                    <FText fontSize="large" fontWeight="400" color={colours.typography_60}>
-                                        Added to Favorites!
-                                    </FText>
-                                </View>
-                            </View>
-                        </Modal>
-
-
-                        <FText style={{ paddingHorizontal: 20, marginTop: 20, marginBottom: 20 }} fontSize='h6' fontWeight='700' color={colours.primary} >Rate this Property</FText>
-                        <Rating
-                            type='custom'
-                            ratingCount={5}
-                            imageSize={30}
-                            ratingColor='#FDB54A'
-                            startingValue={rating}
-                            ratingBackgroundColor='#c8c7c8'
-                            style={{ paddingVertical: 10, alignSelf: 'center' }}
-                            onFinishRating={rating => setRating(rating)}
-                        />
-                        <TouchableOpacity style={{ backgroundColor: '#8BC83F', borderRadius: 10, marginHorizontal: 20, marginTop: 20, alignItems: 'center', width: '60%', height: 46, justifyContent: 'center', alignSelf: 'center', marginBottom: 20 }} onPress={() => handleReview()}>
-                            <FText fontSize='large' fontWeight='400' color={colours.white}>Submit</FText>
-                        </TouchableOpacity>
-                        {/* <TouchableOpacity style={{ backgroundColor: '#8BC83F', borderRadius: 10, marginHorizontal: 20, marginVertical: 20, alignItems: 'center', width: '60%', height: 46, justifyContent: 'center', alignSelf: 'center' }}>
+                            <TouchableOpacity style={{ backgroundColor: '#8BC83F', borderRadius: 10, marginHorizontal: 20, marginTop: 20, alignItems: 'center', width: '60%', height: 46, justifyContent: 'center', alignSelf: 'center', marginBottom: 20 }} onPress={() => handleReview()}>
+                                <FText fontSize='large' fontWeight='400' color={colours.white}>Submit</FText>
+                            </TouchableOpacity>
+                            {/* <TouchableOpacity style={{ backgroundColor: '#8BC83F', borderRadius: 10, marginHorizontal: 20, marginVertical: 20, alignItems: 'center', width: '60%', height: 46, justifyContent: 'center', alignSelf: 'center' }}>
                             <FText fontSize='large' fontWeight='400' color={colours.white} >Submit</FText>
                         </TouchableOpacity> */}
-                    </View>
-                </ScrollView>
-            )}
-        </SafeAreaView>
-
+                        </View>
+                    </ScrollView>
+                )}
+            </SafeAreaView>
+            {favoriteLoader &&
+                <View style={styles.lottieBox}>
+                    <LottieView source={require('../assets/animations/like_animation.json')} style={{ height: 420, width: 420, bottom: 40 }} autoPlay loop />
+                </View>
+            }
+        </>
     )
 }
 
@@ -595,7 +650,13 @@ const styles = StyleSheet.create({
         top: '14%',
         right: 6,
         zIndex: 999,
+        height: 40, width: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center',
+        backgroundColor: 'rgba(0,0,0,0.3)'
     },
+    lottieBox: {
+        position: 'absolute', top: 0, left: 0, height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center',
+        backgroundColor: 'rgba(0,0,0,0.2)'
+      },
     rowViewBgImg: {
         position: 'absolute',
         bottom: 36,

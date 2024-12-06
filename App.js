@@ -65,6 +65,7 @@ import CreateGroup1 from "./screens/CreateGroup1";
 import CreateGroup2 from "./screens/CreateGroup2";
 import GroupDetails from "./screens/GroupDetails";
 import GroupChatScreen from "./screens/GroupChatScreen";
+import Posts from "./screens/Posts";
 
 LogBox.ignoreLogs(["Warning: ..."]);
 LogBox.ignoreAllLogs();
@@ -369,6 +370,12 @@ function App() {
         <Stack.Screen
           name="InvestorProfile"
           component={InvestorProfile}
+
+        />
+
+        <Stack.Screen
+          name="Posts"
+          component={Posts}
 
         />
 
